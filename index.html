@@ -72,17 +72,18 @@ async function fetchDividends() {
   const toStr = now.toISOString().split('.')[0];
 
   try {
-    const response = await fetch(
-      `${SUPABASE_URL}/functions/v1/t212-dividends?days=${days}`,
-      {
-       headers: {
-  'Authorization': `Bearer ${SUPABASE_KEY}`,
-  'apikey': SUPABASE_KEY,
-  'x-t212-key': encodeURIComponent(apiKey),
-  'Content-Type': 'application/json',
-}
-      }
-    );
+ const response = await fetch(
+  `${SUPABASE_URL}/functions/v1/t212-dividends`,
+  {
+    method: 'POST',
+    headers: {
+      'Authorization': `Bearer ${SUPABASE_KEY}`,
+      'apikey': SUPABASE_KEY,
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({ t212Key: apiKey, days: days })
+  }
+);
 
     const data = await response.json();
 
