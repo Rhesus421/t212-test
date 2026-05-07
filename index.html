@@ -78,7 +78,7 @@ async function fetchDividends() {
        headers: {
   'Authorization': `Bearer ${SUPABASE_KEY}`,
   'apikey': SUPABASE_KEY,
-  'x-t212-key': apiKey,
+  'x-t212-key': encodeURIComponent(apiKey),
   'Content-Type': 'application/json',
 }
       }
