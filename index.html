@@ -75,10 +75,12 @@ async function fetchDividends() {
     const response = await fetch(
       `${SUPABASE_URL}/functions/v1/t212-dividends?days=${days}`,
       {
-        headers: {
-          'Authorization': `Bearer ${SUPABASE_KEY}`,
-          'x-t212-key': apiKey,
-        }
+       headers: {
+  'Authorization': `Bearer ${SUPABASE_KEY}`,
+  'apikey': SUPABASE_KEY,
+  'x-t212-key': apiKey,
+  'Content-Type': 'application/json',
+}
       }
     );
 
