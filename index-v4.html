@@ -1,0 +1,1358 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<title>Dividend Tracker</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/7.23.2/babel.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>
+* { margin:0; padding:0; box-sizing:border-box; }
+body { background:#080b12; color:#e2e8f0; font-family:'Courier New',monospace; }
+input, select, button { font-family:'Courier New',monospace; }
+::-webkit-scrollbar { display:none; }
+</style>
+</head>
+<body>
+<div id="root"></div>
+<script type="text/babel">
+const { useState, useMemo, useEffect } = React;
+const { createClient } = supabase;
+const db = createClient("https://yuiyctpvuaynxghjprok.supabase.co", "sb_publishable_M7HMxrB2D-CEaSHOZhMElA_1m6w1iZT");
+
+const INITIAL_DATA = [{"id": 1, "name": "Vanguard global aggregate bond UCITS ETF", "category": "ETF", "year": 2020, "month": 3, "amount": 0.03}, {"id": 2, "name": "Vanguard global aggregate bond UCITS ETF", "category": "ETF", "year": 2020, "month": 4, "amount": 0.07}, {"id": 3, "name": "Vanguard global aggregate bond UCITS ETF", "category": "ETF", "year": 2020, "month": 5, "amount": 0.05}, {"id": 4, "name": "Vanguard global aggregate bond UCITS ETF", "category": "ETF", "year": 2020, "month": 6, "amount": 0.11}, {"id": 5, "name": "Vanguard global aggregate bond UCITS ETF", "category": "ETF", "year": 2020, "month": 8, "amount": 0.08}, {"id": 6, "name": "Vanguard global aggregate bond UCITS ETF", "category": "ETF", "year": 2020, "month": 9, "amount": 0.05}, {"id": 7, "name": "Vanguard global aggregate bond UCITS ETF", "category": "ETF", "year": 2020, "month": 10, "amount": 0.06}, {"id": 8, "name": "Vanguard global aggregate bond UCITS ETF", "category": "ETF", "year": 2020, "month": 11, "amount": 0.05}, {"id": 9, "name": "Vanguard global aggregate bond UCITS ETF", "category": "ETF", "year": 2020, "month": 12, "amount": 0.04}, {"id": 10, "name": "Vanguard FTSE Emerging Markets", "category": "ETF", "year": 2020, "month": 6, "amount": 0.23}, {"id": 11, "name": "Vanguard FTSE Emerging Markets", "category": "ETF", "year": 2020, "month": 10, "amount": 0.55}, {"id": 12, "name": "Vanguard S&P 500 UCITS ETF", "category": "ETF", "year": 2020, "month": 4, "amount": 0.26}, {"id": 13, "name": "Vanguard S&P 500 UCITS ETF", "category": "ETF", "year": 2020, "month": 6, "amount": 0.17}, {"id": 14, "name": "Vanguard S&P 500 UCITS ETF", "category": "ETF", "year": 2020, "month": 10, "amount": 0.21}, {"id": 15, "name": "Vanguard FTSE Developed Asia Pacific ex japan UCIT ETF", "category": "ETF", "year": 2020, "month": 6, "amount": 0.08}, {"id": 16, "name": "Vanguard FTSE Developed Asia Pacific ex japan UCIT ETF", "category": "ETF", "year": 2020, "month": 10, "amount": 0.13}, {"id": 17, "name": "iShares MSCI Europe ex-UK UCITS ETF EUR", "category": "ETF", "year": 2020, "month": 3, "amount": 0.04}, {"id": 18, "name": "iShares MSCI Europe ex-UK UCITS ETF EUR", "category": "ETF", "year": 2020, "month": 6, "amount": 0.3}, {"id": 19, "name": "iShares MSCI Europe ex-UK UCITS ETF EUR", "category": "ETF", "year": 2020, "month": 10, "amount": 0.12}, {"id": 20, "name": "HSBC MSCI China USD UCITS ETF Distributing", "category": "ETF", "year": 2020, "month": 8, "amount": 0.05}, {"id": 21, "name": "Vanguard FTSE All-World High Dividend Yield UCITS ETF", "category": "ETF", "year": 2020, "month": 6, "amount": 0.08}, {"id": 22, "name": "Vanguard FTSE All-World High Dividend Yield UCITS ETF", "category": "ETF", "year": 2020, "month": 10, "amount": 0.42}, {"id": 23, "name": "SPDR S&P Euro Dividend Aristocrats UCITS ETF (Dist)", "category": "ETF", "year": 2020, "month": 10, "amount": 0.59}, {"id": 24, "name": "Omega Healthcare Investors, Inc", "category": "REIT", "year": 2020, "month": 5, "amount": 0.63}, {"id": 25, "name": "Omega Healthcare Investors, Inc", "category": "REIT", "year": 2020, "month": 8, "amount": 0.96}, {"id": 26, "name": "Omega Healthcare Investors, Inc", "category": "REIT", "year": 2020, "month": 11, "amount": 1.48}, {"id": 27, "name": "Medical Properties Trust, Inc", "category": "REIT", "year": 2020, "month": 4, "amount": 0.24}, {"id": 28, "name": "Medical Properties Trust, Inc", "category": "REIT", "year": 2020, "month": 7, "amount": 0.24}, {"id": 29, "name": "Medical Properties Trust, Inc", "category": "REIT", "year": 2020, "month": 10, "amount": 0.49}, {"id": 30, "name": "Monmouth Real Estate Investment", "category": "REIT", "year": 2020, "month": 9, "amount": 0.25}, {"id": 31, "name": "Monmouth Real Estate Investment", "category": "REIT", "year": 2020, "month": 12, "amount": 0.35}, {"id": 32, "name": "Realty income", "category": "REIT", "year": 2020, "month": 11, "amount": 0.17}, {"id": 33, "name": "Realty income", "category": "REIT", "year": 2020, "month": 12, "amount": 0.17}, {"id": 34, "name": "SL Green Realty Corporation", "category": "REIT", "year": 2020, "month": 11, "amount": 0.22}, {"id": 35, "name": "SL Green Realty Corporation", "category": "REIT", "year": 2020, "month": 12, "amount": 0.21}, {"id": 36, "name": "Intérêt Mintos", "category": "Obligations/Intérêts", "year": 2020, "month": 11, "amount": 0.17}, {"id": 37, "name": "Intérêt Mintos", "category": "Obligations/Intérêts", "year": 2020, "month": 12, "amount": 0.81}, {"id": 38, "name": "Vanguard global aggregate bond UCITS ETF", "category": "ETF", "year": 2021, "month": 1, "amount": 0.04}, {"id": 39, "name": "Vanguard global aggregate bond UCITS ETF", "category": "ETF", "year": 2021, "month": 2, "amount": 0.04}, {"id": 40, "name": "Vanguard global aggregate bond UCITS ETF", "category": "ETF", "year": 2021, "month": 3, "amount": 0.03}, {"id": 41, "name": "Vanguard global aggregate bond UCITS ETF", "category": "ETF", "year": 2021, "month": 4, "amount": 0.07}, {"id": 42, "name": "Vanguard global aggregate bond UCITS ETF", "category": "ETF", "year": 2021, "month": 6, "amount": 0.05}, {"id": 43, "name": "Vanguard global aggregate bond UCITS ETF", "category": "ETF", "year": 2021, "month": 7, "amount": 0.09}, {"id": 44, "name": "Vanguard global aggregate bond UCITS ETF", "category": "ETF", "year": 2021, "month": 9, "amount": 0.05}, {"id": 45, "name": "Vanguard global aggregate bond UCITS ETF", "category": "ETF", "year": 2021, "month": 10, "amount": 0.1}, {"id": 46, "name": "Vanguard global aggregate bond UCITS ETF", "category": "ETF", "year": 2021, "month": 12, "amount": 0.14}, {"id": 47, "name": "Vanguard FTSE Emerging Markets", "category": "ETF", "year": 2021, "month": 1, "amount": 0.13}, {"id": 48, "name": "Vanguard FTSE Emerging Markets", "category": "ETF", "year": 2021, "month": 4, "amount": 0.11}, {"id": 49, "name": "Vanguard FTSE Emerging Markets", "category": "ETF", "year": 2021, "month": 7, "amount": 0.43}, {"id": 50, "name": "Vanguard FTSE Emerging Markets", "category": "ETF", "year": 2021, "month": 10, "amount": 0.7}, {"id": 51, "name": "Vanguard FTSE Emerging Markets", "category": "ETF", "year": 2021, "month": 12, "amount": 0.52}, {"id": 52, "name": "Vanguard S&P 500 UCITS ETF", "category": "ETF", "year": 2021, "month": 1, "amount": 0.22}, {"id": 53, "name": "Vanguard S&P 500 UCITS ETF", "category": "ETF", "year": 2021, "month": 4, "amount": 0.25}, {"id": 54, "name": "Vanguard S&P 500 UCITS ETF", "category": "ETF", "year": 2021, "month": 7, "amount": 0.24}, {"id": 55, "name": "Vanguard S&P 500 UCITS ETF", "category": "ETF", "year": 2021, "month": 10, "amount": 0.27}, {"id": 56, "name": "Vanguard FTSE Developed Asia Pacific ex japan UCIT ETF", "category": "ETF", "year": 2021, "month": 1, "amount": 0.09}, {"id": 57, "name": "Vanguard FTSE Developed Asia Pacific ex japan UCIT ETF", "category": "ETF", "year": 2021, "month": 4, "amount": 0.36}, {"id": 58, "name": "Vanguard FTSE Developed Asia Pacific ex japan UCIT ETF", "category": "ETF", "year": 2021, "month": 7, "amount": 0.29}, {"id": 59, "name": "Vanguard FTSE Developed Asia Pacific ex japan UCIT ETF", "category": "ETF", "year": 2021, "month": 10, "amount": 0.62}, {"id": 60, "name": "Vanguard FTSE Developed Asia Pacific ex japan UCIT ETF", "category": "ETF", "year": 2021, "month": 12, "amount": 0.74}, {"id": 61, "name": "iShares MSCI Europe ex-UK UCITS ETF EUR", "category": "ETF", "year": 2021, "month": 1, "amount": 0.03}, {"id": 62, "name": "iShares MSCI Europe ex-UK UCITS ETF EUR", "category": "ETF", "year": 2021, "month": 3, "amount": 0.06}, {"id": 63, "name": "iShares MSCI Europe ex-UK UCITS ETF EUR", "category": "ETF", "year": 2021, "month": 7, "amount": 0.62}, {"id": 64, "name": "iShares MSCI Europe ex-UK UCITS ETF EUR", "category": "ETF", "year": 2021, "month": 10, "amount": 0.07}, {"id": 65, "name": "HSBC MSCI China USD UCITS ETF Distributing", "category": "ETF", "year": 2021, "month": 3, "amount": 0.09}, {"id": 66, "name": "HSBC MSCI China USD UCITS ETF Distributing", "category": "ETF", "year": 2021, "month": 8, "amount": 0.15}, {"id": 67, "name": "Vanguard FTSE All-World High Dividend Yield UCITS ETF", "category": "ETF", "year": 2021, "month": 1, "amount": 0.35}, {"id": 68, "name": "Vanguard FTSE All-World High Dividend Yield UCITS ETF", "category": "ETF", "year": 2021, "month": 4, "amount": 0.44}, {"id": 69, "name": "Vanguard FTSE All-World High Dividend Yield UCITS ETF", "category": "ETF", "year": 2021, "month": 7, "amount": 0.71}, {"id": 70, "name": "Vanguard FTSE All-World High Dividend Yield UCITS ETF", "category": "ETF", "year": 2021, "month": 10, "amount": 0.65}, {"id": 71, "name": "Vanguard FTSE All-World High Dividend Yield UCITS ETF", "category": "ETF", "year": 2021, "month": 12, "amount": 0.81}, {"id": 72, "name": "SPDR S&P Euro Dividend Aristocrats UCITS ETF (Dist)", "category": "ETF", "year": 2021, "month": 4, "amount": 0.18}, {"id": 73, "name": "SPDR S&P Euro Dividend Aristocrats UCITS ETF (Dist)", "category": "ETF", "year": 2021, "month": 10, "amount": 1.4}, {"id": 74, "name": "Fidelity Global Quality Income UCITS ETF", "category": "ETF", "year": 2021, "month": 6, "amount": 0.14}, {"id": 75, "name": "Fidelity Global Quality Income UCITS ETF", "category": "ETF", "year": 2021, "month": 9, "amount": 0.14}, {"id": 76, "name": "Fidelity Global Quality Income UCITS ETF", "category": "ETF", "year": 2021, "month": 11, "amount": 0.3}, {"id": 77, "name": "Omega Healthcare Investors, Inc", "category": "REIT", "year": 2021, "month": 2, "amount": 1.55}, {"id": 78, "name": "Omega Healthcare Investors, Inc", "category": "REIT", "year": 2021, "month": 5, "amount": 1.69}, {"id": 79, "name": "Omega Healthcare Investors, Inc", "category": "REIT", "year": 2021, "month": 8, "amount": 1.75}, {"id": 80, "name": "Omega Healthcare Investors, Inc", "category": "REIT", "year": 2021, "month": 11, "amount": 2.13}, {"id": 81, "name": "Medical Properties Trust, Inc", "category": "REIT", "year": 2021, "month": 1, "amount": 0.68}, {"id": 82, "name": "Medical Properties Trust, Inc", "category": "REIT", "year": 2021, "month": 4, "amount": 0.78}, {"id": 83, "name": "Medical Properties Trust, Inc", "category": "REIT", "year": 2021, "month": 7, "amount": 0.89}, {"id": 84, "name": "Medical Properties Trust, Inc", "category": "REIT", "year": 2021, "month": 10, "amount": 0.91}, {"id": 85, "name": "Monmouth Real Estate Investment", "category": "REIT", "year": 2021, "month": 3, "amount": 0.39}, {"id": 86, "name": "Monmouth Real Estate Investment", "category": "REIT", "year": 2021, "month": 6, "amount": 0.43}, {"id": 87, "name": "Monmouth Real Estate Investment", "category": "REIT", "year": 2021, "month": 9, "amount": 0.48}, {"id": 88, "name": "Monmouth Real Estate Investment", "category": "REIT", "year": 2021, "month": 12, "amount": 0.63}, {"id": 89, "name": "EPR Properties REIT", "category": "REIT", "year": 2021, "month": 8, "amount": 0.28}, {"id": 90, "name": "EPR Properties REIT", "category": "REIT", "year": 2021, "month": 9, "amount": 0.3}, {"id": 91, "name": "EPR Properties REIT", "category": "REIT", "year": 2021, "month": 10, "amount": 0.34}, {"id": 92, "name": "EPR Properties REIT", "category": "REIT", "year": 2021, "month": 11, "amount": 0.38}, {"id": 93, "name": "EPR Properties REIT", "category": "REIT", "year": 2021, "month": 12, "amount": 0.4}, {"id": 94, "name": "Realty income", "category": "REIT", "year": 2021, "month": 1, "amount": 0.2}, {"id": 95, "name": "Realty income", "category": "REIT", "year": 2021, "month": 2, "amount": 0.24}, {"id": 96, "name": "Realty income", "category": "REIT", "year": 2021, "month": 3, "amount": 0.28}, {"id": 97, "name": "Realty income", "category": "REIT", "year": 2021, "month": 4, "amount": 0.31}, {"id": 98, "name": "Realty income", "category": "REIT", "year": 2021, "month": 5, "amount": 0.34}, {"id": 99, "name": "Realty income", "category": "REIT", "year": 2021, "month": 6, "amount": 0.38}, {"id": 100, "name": "Realty income", "category": "REIT", "year": 2021, "month": 7, "amount": 0.4}, {"id": 101, "name": "Realty income", "category": "REIT", "year": 2021, "month": 8, "amount": 0.43}, {"id": 102, "name": "Realty income", "category": "REIT", "year": 2021, "month": 9, "amount": 0.45}, {"id": 103, "name": "Realty income", "category": "REIT", "year": 2021, "month": 10, "amount": 0.52}, {"id": 104, "name": "Realty income", "category": "REIT", "year": 2021, "month": 11, "amount": 0.58}, {"id": 105, "name": "Realty income", "category": "REIT", "year": 2021, "month": 12, "amount": 0.62}, {"id": 106, "name": "Federal Realty investment", "category": "REIT", "year": 2021, "month": 1, "amount": 0.21}, {"id": 107, "name": "Federal Realty investment", "category": "REIT", "year": 2021, "month": 4, "amount": 0.36}, {"id": 108, "name": "Federal Realty investment", "category": "REIT", "year": 2021, "month": 7, "amount": 0.45}, {"id": 109, "name": "Federal Realty investment", "category": "REIT", "year": 2021, "month": 10, "amount": 0.58}, {"id": 110, "name": "SL Green Realty Corporation", "category": "REIT", "year": 2021, "month": 1, "amount": 2.4}, {"id": 111, "name": "SL Green Realty Corporation", "category": "REIT", "year": 2021, "month": 2, "amount": 0.3}, {"id": 112, "name": "SL Green Realty Corporation", "category": "REIT", "year": 2021, "month": 3, "amount": 0.34}, {"id": 113, "name": "SL Green Realty Corporation", "category": "REIT", "year": 2021, "month": 4, "amount": 0.38}, {"id": 114, "name": "SL Green Realty Corporation", "category": "REIT", "year": 2021, "month": 5, "amount": 0.41}, {"id": 115, "name": "SL Green Realty Corporation", "category": "REIT", "year": 2021, "month": 6, "amount": 0.45}, {"id": 116, "name": "SL Green Realty Corporation", "category": "REIT", "year": 2021, "month": 7, "amount": 0.47}, {"id": 117, "name": "SL Green Realty Corporation", "category": "REIT", "year": 2021, "month": 8, "amount": 0.51}, {"id": 118, "name": "SL Green Realty Corporation", "category": "REIT", "year": 2021, "month": 9, "amount": 0.54}, {"id": 119, "name": "SL Green Realty Corporation", "category": "REIT", "year": 2021, "month": 10, "amount": 0.62}, {"id": 120, "name": "SL Green Realty Corporation", "category": "REIT", "year": 2021, "month": 11, "amount": 0.69}, {"id": 121, "name": "SL Green Realty Corporation", "category": "REIT", "year": 2021, "month": 12, "amount": 0.71}, {"id": 122, "name": "Boston Properties", "category": "REIT", "year": 2021, "month": 2, "amount": 0.5}, {"id": 123, "name": "Boston Properties", "category": "REIT", "year": 2021, "month": 5, "amount": 0.63}, {"id": 124, "name": "Boston Properties", "category": "REIT", "year": 2021, "month": 8, "amount": 0.73}, {"id": 125, "name": "Boston Properties", "category": "REIT", "year": 2021, "month": 11, "amount": 0.74}, {"id": 126, "name": "LTC Properties", "category": "REIT", "year": 2021, "month": 6, "amount": 0.04}, {"id": 127, "name": "LTC Properties", "category": "REIT", "year": 2021, "month": 7, "amount": 0.1}, {"id": 128, "name": "LTC Properties", "category": "REIT", "year": 2021, "month": 8, "amount": 0.14}, {"id": 129, "name": "LTC Properties", "category": "REIT", "year": 2021, "month": 9, "amount": 0.16}, {"id": 130, "name": "LTC Properties", "category": "REIT", "year": 2021, "month": 10, "amount": 0.21}, {"id": 131, "name": "LTC Properties", "category": "REIT", "year": 2021, "month": 11, "amount": 0.24}, {"id": 132, "name": "LTC Properties", "category": "REIT", "year": 2021, "month": 12, "amount": 0.33}, {"id": 133, "name": "Digital Realty", "category": "REIT", "year": 2021, "month": 11, "amount": 0.13}, {"id": 134, "name": "Intérêt Mintos", "category": "Obligations/Intérêts", "year": 2021, "month": 1, "amount": 1.24}, {"id": 135, "name": "Intérêt Mintos", "category": "Obligations/Intérêts", "year": 2021, "month": 2, "amount": 1.74}, {"id": 136, "name": "Intérêt Mintos", "category": "Obligations/Intérêts", "year": 2021, "month": 3, "amount": 3.17}, {"id": 137, "name": "Intérêt Mintos", "category": "Obligations/Intérêts", "year": 2021, "month": 4, "amount": 2.73}, {"id": 138, "name": "Intérêt Mintos", "category": "Obligations/Intérêts", "year": 2021, "month": 5, "amount": 2.95}, {"id": 139, "name": "Intérêt Mintos", "category": "Obligations/Intérêts", "year": 2021, "month": 6, "amount": 3.95}, {"id": 140, "name": "Intérêt Mintos", "category": "Obligations/Intérêts", "year": 2021, "month": 7, "amount": 4.04}, {"id": 141, "name": "Intérêt Mintos", "category": "Obligations/Intérêts", "year": 2021, "month": 8, "amount": 4.33}, {"id": 142, "name": "Intérêt Mintos", "category": "Obligations/Intérêts", "year": 2021, "month": 9, "amount": 4.67}, {"id": 143, "name": "Intérêt Mintos", "category": "Obligations/Intérêts", "year": 2021, "month": 10, "amount": 6.09}, {"id": 144, "name": "Intérêt Mintos", "category": "Obligations/Intérêts", "year": 2021, "month": 11, "amount": 5.07}, {"id": 145, "name": "Intérêt Mintos", "category": "Obligations/Intérêts", "year": 2021, "month": 12, "amount": 5.03}, {"id": 146, "name": "Vanguard global aggregate bond UCITS ETF", "category": "ETF", "year": 2022, "month": 2, "amount": 0.08}, {"id": 147, "name": "Vanguard global aggregate bond UCITS ETF", "category": "ETF", "year": 2022, "month": 3, "amount": 0.16}, {"id": 148, "name": "Vanguard global aggregate bond UCITS ETF", "category": "ETF", "year": 2022, "month": 4, "amount": 0.09}, {"id": 149, "name": "Vanguard global aggregate bond UCITS ETF", "category": "ETF", "year": 2022, "month": 6, "amount": 0.23}, {"id": 150, "name": "Vanguard global aggregate bond UCITS ETF", "category": "ETF", "year": 2022, "month": 7, "amount": 0.13}, {"id": 151, "name": "Vanguard global aggregate bond UCITS ETF", "category": "ETF", "year": 2022, "month": 9, "amount": 0.29}, {"id": 152, "name": "Vanguard global aggregate bond UCITS ETF", "category": "ETF", "year": 2022, "month": 10, "amount": 0.17}, {"id": 153, "name": "Vanguard global aggregate bond UCITS ETF", "category": "ETF", "year": 2022, "month": 12, "amount": 0.39}, {"id": 154, "name": "Vanguard FTSE Emerging Markets", "category": "ETF", "year": 2022, "month": 4, "amount": 0.25}, {"id": 155, "name": "Vanguard FTSE Emerging Markets", "category": "ETF", "year": 2022, "month": 7, "amount": 1.27}, {"id": 156, "name": "Vanguard FTSE Emerging Markets", "category": "ETF", "year": 2022, "month": 9, "amount": 1.84}, {"id": 157, "name": "Vanguard FTSE Emerging Markets", "category": "ETF", "year": 2022, "month": 12, "amount": 0.62}, {"id": 158, "name": "Vanguard S&P 500 UCITS ETF", "category": "ETF", "year": 2022, "month": 1, "amount": 0.3}, {"id": 159, "name": "Vanguard S&P 500 UCITS ETF", "category": "ETF", "year": 2022, "month": 4, "amount": 0.39}, {"id": 160, "name": "Vanguard S&P 500 UCITS ETF", "category": "ETF", "year": 2022, "month": 7, "amount": 0.46}, {"id": 161, "name": "Vanguard S&P 500 UCITS ETF", "category": "ETF", "year": 2022, "month": 9, "amount": 0.58}, {"id": 162, "name": "Vanguard S&P 500 UCITS ETF", "category": "ETF", "year": 2022, "month": 12, "amount": 0.57}, {"id": 163, "name": "Vanguard FTSE Developed Asia Pacific ex japan UCIT ETF", "category": "ETF", "year": 2022, "month": 3, "amount": 1.0}, {"id": 164, "name": "Vanguard FTSE Developed Asia Pacific ex japan UCIT ETF", "category": "ETF", "year": 2022, "month": 6, "amount": 1.6}, {"id": 165, "name": "Vanguard FTSE Developed Asia Pacific ex japan UCIT ETF", "category": "ETF", "year": 2022, "month": 9, "amount": 1.47}, {"id": 166, "name": "Vanguard FTSE Developed Asia Pacific ex japan UCIT ETF", "category": "ETF", "year": 2022, "month": 12, "amount": 0.78}, {"id": 167, "name": "iShares MSCI Europe ex-UK UCITS ETF EUR", "category": "ETF", "year": 2022, "month": 1, "amount": 0.18}, {"id": 168, "name": "iShares MSCI Europe ex-UK UCITS ETF EUR", "category": "ETF", "year": 2022, "month": 4, "amount": 0.02}, {"id": 169, "name": "iShares MSCI Europe ex-UK UCITS ETF EUR", "category": "ETF", "year": 2022, "month": 7, "amount": 1.82}, {"id": 170, "name": "iShares MSCI Europe ex-UK UCITS ETF EUR", "category": "ETF", "year": 2022, "month": 9, "amount": 0.19}, {"id": 171, "name": "HSBC MSCI China USD UCITS ETF Distributing", "category": "ETF", "year": 2022, "month": 2, "amount": 0.27}, {"id": 172, "name": "HSBC MSCI China USD UCITS ETF Distributing", "category": "ETF", "year": 2022, "month": 8, "amount": 0.8}, {"id": 173, "name": "Vanguard FTSE All-World High Dividend Yield UCITS ETF", "category": "ETF", "year": 2022, "month": 4, "amount": 0.68}, {"id": 174, "name": "Vanguard FTSE All-World High Dividend Yield UCITS ETF", "category": "ETF", "year": 2022, "month": 7, "amount": 2.13}, {"id": 175, "name": "Vanguard FTSE All-World High Dividend Yield UCITS ETF", "category": "ETF", "year": 2022, "month": 9, "amount": 1.29}, {"id": 176, "name": "Vanguard FTSE All-World High Dividend Yield UCITS ETF", "category": "ETF", "year": 2022, "month": 12, "amount": 1.2}, {"id": 177, "name": "SPDR S&P Euro Dividend Aristocrats UCITS ETF (Dist)", "category": "ETF", "year": 2022, "month": 3, "amount": 0.26}, {"id": 178, "name": "SPDR S&P Euro Dividend Aristocrats UCITS ETF (Dist)", "category": "ETF", "year": 2022, "month": 9, "amount": 3.83}, {"id": 179, "name": "Fidelity Global Quality Income UCITS ETF", "category": "ETF", "year": 2022, "month": 3, "amount": 0.28}, {"id": 180, "name": "Fidelity Global Quality Income UCITS ETF", "category": "ETF", "year": 2022, "month": 5, "amount": 0.71}, {"id": 181, "name": "Fidelity Global Quality Income UCITS ETF", "category": "ETF", "year": 2022, "month": 8, "amount": 0.62}, {"id": 182, "name": "Fidelity Global Quality Income UCITS ETF", "category": "ETF", "year": 2022, "month": 11, "amount": 0.66}, {"id": 183, "name": "Omega Healthcare Investors, Inc", "category": "REIT", "year": 2022, "month": 2, "amount": 2.49}, {"id": 184, "name": "Omega Healthcare Investors, Inc", "category": "REIT", "year": 2022, "month": 5, "amount": 3.17}, {"id": 185, "name": "Omega Healthcare Investors, Inc", "category": "REIT", "year": 2022, "month": 8, "amount": 3.59}, {"id": 186, "name": "Omega Healthcare Investors, Inc", "category": "REIT", "year": 2022, "month": 11, "amount": 3.86}, {"id": 187, "name": "Medical Properties Trust, Inc", "category": "REIT", "year": 2022, "month": 1, "amount": 1.11}, {"id": 188, "name": "Medical Properties Trust, Inc", "category": "REIT", "year": 2022, "month": 4, "amount": 1.48}, {"id": 189, "name": "Medical Properties Trust, Inc", "category": "REIT", "year": 2022, "month": 7, "amount": 1.81}, {"id": 190, "name": "Medical Properties Trust, Inc", "category": "REIT", "year": 2022, "month": 10, "amount": 2.12}, {"id": 191, "name": "Industrial Logistic Properties Trust", "category": "REIT", "year": 2022, "month": 5, "amount": 0.56}, {"id": 192, "name": "Industrial Logistic Properties Trust", "category": "REIT", "year": 2022, "month": 8, "amount": 0.03}, {"id": 193, "name": "Industrial Logistic Properties Trust", "category": "REIT", "year": 2022, "month": 11, "amount": 0.04}, {"id": 194, "name": "EPR Properties REIT", "category": "REIT", "year": 2022, "month": 1, "amount": 0.42}, {"id": 195, "name": "EPR Properties REIT", "category": "REIT", "year": 2022, "month": 2, "amount": 0.44}, {"id": 196, "name": "EPR Properties REIT", "category": "REIT", "year": 2022, "month": 3, "amount": 0.48}, {"id": 197, "name": "EPR Properties REIT", "category": "REIT", "year": 2022, "month": 4, "amount": 0.6}, {"id": 198, "name": "EPR Properties REIT", "category": "REIT", "year": 2022, "month": 5, "amount": 0.64}, {"id": 199, "name": "EPR Properties REIT", "category": "REIT", "year": 2022, "month": 6, "amount": 0.67}, {"id": 200, "name": "EPR Properties REIT", "category": "REIT", "year": 2022, "month": 7, "amount": 0.71}, {"id": 201, "name": "EPR Properties REIT", "category": "REIT", "year": 2022, "month": 8, "amount": 0.74}, {"id": 202, "name": "EPR Properties REIT", "category": "REIT", "year": 2022, "month": 9, "amount": 0.77}, {"id": 203, "name": "EPR Properties REIT", "category": "REIT", "year": 2022, "month": 10, "amount": 0.81}, {"id": 204, "name": "EPR Properties REIT", "category": "REIT", "year": 2022, "month": 11, "amount": 0.83}, {"id": 205, "name": "EPR Properties REIT", "category": "REIT", "year": 2022, "month": 12, "amount": 0.87}, {"id": 206, "name": "Realty income", "category": "REIT", "year": 2022, "month": 1, "amount": 0.63}, {"id": 207, "name": "Realty income", "category": "REIT", "year": 2022, "month": 2, "amount": 0.66}, {"id": 208, "name": "Realty income", "category": "REIT", "year": 2022, "month": 3, "amount": 0.7}, {"id": 209, "name": "Realty income", "category": "REIT", "year": 2022, "month": 4, "amount": 0.76}, {"id": 210, "name": "Realty income", "category": "REIT", "year": 2022, "month": 5, "amount": 0.81}, {"id": 211, "name": "Realty income", "category": "REIT", "year": 2022, "month": 6, "amount": 0.82}, {"id": 212, "name": "Realty income", "category": "REIT", "year": 2022, "month": 7, "amount": 0.87}, {"id": 213, "name": "Realty income", "category": "REIT", "year": 2022, "month": 8, "amount": 0.89}, {"id": 214, "name": "Realty income", "category": "REIT", "year": 2022, "month": 9, "amount": 0.92}, {"id": 215, "name": "Realty income", "category": "REIT", "year": 2022, "month": 10, "amount": 0.97}, {"id": 216, "name": "Realty income", "category": "REIT", "year": 2022, "month": 11, "amount": 0.94}, {"id": 217, "name": "Realty income", "category": "REIT", "year": 2022, "month": 12, "amount": 0.94}, {"id": 218, "name": "Federal Realty investment", "category": "REIT", "year": 2022, "month": 1, "amount": 0.72}, {"id": 219, "name": "Federal Realty investment", "category": "REIT", "year": 2022, "month": 4, "amount": 0.93}, {"id": 220, "name": "Federal Realty investment", "category": "REIT", "year": 2022, "month": 7, "amount": 1.11}, {"id": 221, "name": "Federal Realty investment", "category": "REIT", "year": 2022, "month": 10, "amount": 1.3}, {"id": 222, "name": "SL Green Realty Corporation", "category": "REIT", "year": 2022, "month": 2, "amount": 0.77}, {"id": 223, "name": "SL Green Realty Corporation", "category": "REIT", "year": 2022, "month": 3, "amount": 0.81}, {"id": 224, "name": "SL Green Realty Corporation", "category": "REIT", "year": 2022, "month": 4, "amount": 0.87}, {"id": 225, "name": "SL Green Realty Corporation", "category": "REIT", "year": 2022, "month": 5, "amount": 0.91}, {"id": 226, "name": "SL Green Realty Corporation", "category": "REIT", "year": 2022, "month": 6, "amount": 0.94}, {"id": 227, "name": "SL Green Realty Corporation", "category": "REIT", "year": 2022, "month": 7, "amount": 0.99}, {"id": 228, "name": "SL Green Realty Corporation", "category": "REIT", "year": 2022, "month": 8, "amount": 1.05}, {"id": 229, "name": "SL Green Realty Corporation", "category": "REIT", "year": 2022, "month": 9, "amount": 1.12}, {"id": 230, "name": "SL Green Realty Corporation", "category": "REIT", "year": 2022, "month": 10, "amount": 1.2}, {"id": 231, "name": "SL Green Realty Corporation", "category": "REIT", "year": 2022, "month": 11, "amount": 1.2}, {"id": 232, "name": "SL Green Realty Corporation", "category": "REIT", "year": 2022, "month": 12, "amount": 1.21}, {"id": 233, "name": "Boston Properties", "category": "REIT", "year": 2022, "month": 1, "amount": 0.89}, {"id": 234, "name": "Boston Properties", "category": "REIT", "year": 2022, "month": 5, "amount": 1.11}, {"id": 235, "name": "Boston Properties", "category": "REIT", "year": 2022, "month": 8, "amount": 1.25}, {"id": 236, "name": "Boston Properties", "category": "REIT", "year": 2022, "month": 11, "amount": 1.44}, {"id": 237, "name": "Agree Realty Corporation", "category": "REIT", "year": 2022, "month": 11, "amount": 0.03}, {"id": 238, "name": "Agree Realty Corporation", "category": "REIT", "year": 2022, "month": 12, "amount": 0.05}, {"id": 239, "name": "LTC Properties", "category": "REIT", "year": 2022, "month": 1, "amount": 0.36}, {"id": 240, "name": "LTC Properties", "category": "REIT", "year": 2022, "month": 2, "amount": 0.4}, {"id": 241, "name": "LTC Properties", "category": "REIT", "year": 2022, "month": 3, "amount": 0.43}, {"id": 242, "name": "LTC Properties", "category": "REIT", "year": 2022, "month": 4, "amount": 0.55}, {"id": 243, "name": "LTC Properties", "category": "REIT", "year": 2022, "month": 5, "amount": 0.6}, {"id": 244, "name": "LTC Properties", "category": "REIT", "year": 2022, "month": 6, "amount": 0.62}, {"id": 245, "name": "LTC Properties", "category": "REIT", "year": 2022, "month": 7, "amount": 0.67}, {"id": 246, "name": "LTC Properties", "category": "REIT", "year": 2022, "month": 8, "amount": 0.7}, {"id": 247, "name": "LTC Properties", "category": "REIT", "year": 2022, "month": 9, "amount": 0.74}, {"id": 248, "name": "LTC Properties", "category": "REIT", "year": 2022, "month": 10, "amount": 0.78}, {"id": 249, "name": "LTC Properties", "category": "REIT", "year": 2022, "month": 11, "amount": 0.82}, {"id": 250, "name": "LTC Properties", "category": "REIT", "year": 2022, "month": 12, "amount": 0.81}, {"id": 251, "name": "Digital Realty", "category": "REIT", "year": 2022, "month": 1, "amount": 0.22}, {"id": 252, "name": "Digital Realty", "category": "REIT", "year": 2022, "month": 4, "amount": 0.4}, {"id": 253, "name": "Digital Realty", "category": "REIT", "year": 2022, "month": 7, "amount": 0.54}, {"id": 254, "name": "Digital Realty", "category": "REIT", "year": 2022, "month": 10, "amount": 0.71}, {"id": 255, "name": "Orion office", "category": "REIT", "year": 2022, "month": 4, "amount": 0.03}, {"id": 256, "name": "Orion office", "category": "REIT", "year": 2022, "month": 7, "amount": 0.06}, {"id": 257, "name": "Orion office", "category": "REIT", "year": 2022, "month": 10, "amount": 0.06}, {"id": 258, "name": "Daily Dividends", "category": "Actions", "year": 2022, "month": 1, "amount": 0.02}, {"id": 259, "name": "Daily Dividends", "category": "Actions", "year": 2022, "month": 2, "amount": 0.24}, {"id": 260, "name": "Daily Dividends", "category": "Actions", "year": 2022, "month": 3, "amount": 0.55}, {"id": 261, "name": "Daily Dividends", "category": "Actions", "year": 2022, "month": 4, "amount": 0.64}, {"id": 262, "name": "Daily Dividends", "category": "Actions", "year": 2022, "month": 5, "amount": 0.8}, {"id": 263, "name": "Daily Dividends", "category": "Actions", "year": 2022, "month": 6, "amount": 0.97}, {"id": 264, "name": "Daily Dividends", "category": "Actions", "year": 2022, "month": 7, "amount": 0.94}, {"id": 265, "name": "Daily Dividends", "category": "Actions", "year": 2022, "month": 8, "amount": 1.28}, {"id": 266, "name": "Daily Dividends", "category": "Actions", "year": 2022, "month": 9, "amount": 1.83}, {"id": 267, "name": "Daily Dividends", "category": "Actions", "year": 2022, "month": 10, "amount": 1.43}, {"id": 268, "name": "Daily Dividends", "category": "Actions", "year": 2022, "month": 11, "amount": 1.5}, {"id": 269, "name": "Daily Dividends", "category": "Actions", "year": 2022, "month": 12, "amount": 1.61}, {"id": 270, "name": "Bricks", "category": "Crowdfunding", "year": 2022, "month": 9, "amount": 0.18}, {"id": 271, "name": "Bricks", "category": "Crowdfunding", "year": 2022, "month": 10, "amount": 0.46}, {"id": 272, "name": "Bricks", "category": "Crowdfunding", "year": 2022, "month": 11, "amount": 0.44}, {"id": 273, "name": "Bricks", "category": "Crowdfunding", "year": 2022, "month": 12, "amount": 0.65}, {"id": 274, "name": "Intérêt Mintos", "category": "Obligations/Intérêts", "year": 2022, "month": 1, "amount": 5.9}, {"id": 275, "name": "Intérêt Mintos", "category": "Obligations/Intérêts", "year": 2022, "month": 2, "amount": 4.6}, {"id": 276, "name": "Intérêt Mintos", "category": "Obligations/Intérêts", "year": 2022, "month": 3, "amount": 4.6}, {"id": 277, "name": "Intérêt Mintos", "category": "Obligations/Intérêts", "year": 2022, "month": 4, "amount": 4.05}, {"id": 278, "name": "Intérêt Mintos", "category": "Obligations/Intérêts", "year": 2022, "month": 5, "amount": 4.42}, {"id": 279, "name": "Intérêt Mintos", "category": "Obligations/Intérêts", "year": 2022, "month": 6, "amount": 4.12}, {"id": 280, "name": "Intérêt Mintos", "category": "Obligations/Intérêts", "year": 2022, "month": 7, "amount": 4.85}, {"id": 281, "name": "Intérêt Mintos", "category": "Obligations/Intérêts", "year": 2022, "month": 8, "amount": 6.28}, {"id": 282, "name": "Intérêt Mintos", "category": "Obligations/Intérêts", "year": 2022, "month": 9, "amount": 7.98}, {"id": 283, "name": "Intérêt Mintos", "category": "Obligations/Intérêts", "year": 2022, "month": 10, "amount": 8.04}, {"id": 284, "name": "Intérêt Mintos", "category": "Obligations/Intérêts", "year": 2022, "month": 11, "amount": 9.44}, {"id": 285, "name": "Intérêt Mintos", "category": "Obligations/Intérêts", "year": 2022, "month": 12, "amount": 9.86}, {"id": 286, "name": "Intérêt Peerberry", "category": "Obligations/Intérêts", "year": 2022, "month": 5, "amount": 0.36}, {"id": 287, "name": "Intérêt Peerberry", "category": "Obligations/Intérêts", "year": 2022, "month": 6, "amount": 1.14}, {"id": 288, "name": "Intérêt Peerberry", "category": "Obligations/Intérêts", "year": 2022, "month": 7, "amount": 1.35}, {"id": 289, "name": "Intérêt Peerberry", "category": "Obligations/Intérêts", "year": 2022, "month": 8, "amount": 2.11}, {"id": 290, "name": "Intérêt Peerberry", "category": "Obligations/Intérêts", "year": 2022, "month": 9, "amount": 2.97}, {"id": 291, "name": "Intérêt Peerberry", "category": "Obligations/Intérêts", "year": 2022, "month": 10, "amount": 3.15}, {"id": 292, "name": "Intérêt Peerberry", "category": "Obligations/Intérêts", "year": 2022, "month": 11, "amount": 3.68}, {"id": 293, "name": "Intérêt Peerberry", "category": "Obligations/Intérêts", "year": 2022, "month": 12, "amount": 4.04}, {"id": 294, "name": "Vanguard global aggregate bond UCITS ETF", "category": "ETF", "year": 2023, "month": 2, "amount": 0.25}, {"id": 295, "name": "Vanguard global aggregate bond UCITS ETF", "category": "ETF", "year": 2023, "month": 3, "amount": 0.47}, {"id": 296, "name": "Vanguard global aggregate bond UCITS ETF", "category": "ETF", "year": 2023, "month": 4, "amount": 0.25}, {"id": 297, "name": "Vanguard global aggregate bond UCITS ETF", "category": "ETF", "year": 2023, "month": 6, "amount": 0.67}, {"id": 298, "name": "Vanguard global aggregate bond UCITS ETF", "category": "ETF", "year": 2023, "month": 7, "amount": 0.32}, {"id": 299, "name": "Vanguard global aggregate bond UCITS ETF", "category": "ETF", "year": 2023, "month": 8, "amount": 0.43}, {"id": 300, "name": "Vanguard global aggregate bond UCITS ETF", "category": "ETF", "year": 2023, "month": 9, "amount": 0.38}, {"id": 301, "name": "Vanguard global aggregate bond UCITS ETF", "category": "ETF", "year": 2023, "month": 10, "amount": 0.42}, {"id": 302, "name": "Vanguard global aggregate bond UCITS ETF", "category": "ETF", "year": 2023, "month": 11, "amount": 0.51}, {"id": 303, "name": "Vanguard global aggregate bond UCITS ETF", "category": "ETF", "year": 2023, "month": 12, "amount": 0.43}, {"id": 304, "name": "Vanguard FTSE Emerging Markets", "category": "ETF", "year": 2023, "month": 4, "amount": 0.5}, {"id": 305, "name": "Vanguard FTSE Emerging Markets", "category": "ETF", "year": 2023, "month": 6, "amount": 1.34}, {"id": 306, "name": "Vanguard FTSE Emerging Markets", "category": "ETF", "year": 2023, "month": 9, "amount": 2.39}, {"id": 307, "name": "Vanguard FTSE Emerging Markets", "category": "ETF", "year": 2023, "month": 12, "amount": 0.67}, {"id": 308, "name": "Vanguard S&P 500 UCITS ETF", "category": "ETF", "year": 2023, "month": 3, "amount": 0.68}, {"id": 309, "name": "Vanguard S&P 500 UCITS ETF", "category": "ETF", "year": 2023, "month": 6, "amount": 0.72}, {"id": 310, "name": "Vanguard S&P 500 UCITS ETF", "category": "ETF", "year": 2023, "month": 9, "amount": 0.77}, {"id": 311, "name": "Vanguard S&P 500 UCITS ETF", "category": "ETF", "year": 2023, "month": 12, "amount": 0.83}, {"id": 312, "name": "Vanguard FTSE Developed Asia Pacific ex japan UCIT ETF", "category": "ETF", "year": 2023, "month": 3, "amount": 1.82}, {"id": 313, "name": "Vanguard FTSE Developed Asia Pacific ex japan UCIT ETF", "category": "ETF", "year": 2023, "month": 6, "amount": 1.39}, {"id": 314, "name": "Vanguard FTSE Developed Asia Pacific ex japan UCIT ETF", "category": "ETF", "year": 2023, "month": 9, "amount": 1.63}, {"id": 315, "name": "Vanguard FTSE Developed Asia Pacific ex japan UCIT ETF", "category": "ETF", "year": 2023, "month": 12, "amount": 1.49}, {"id": 316, "name": "iShares MSCI Europe ex-UK UCITS ETF EUR", "category": "ETF", "year": 2023, "month": 1, "amount": 0.19}, {"id": 317, "name": "iShares MSCI Europe ex-UK UCITS ETF EUR", "category": "ETF", "year": 2023, "month": 3, "amount": 0.28}, {"id": 318, "name": "iShares MSCI Europe ex-UK UCITS ETF EUR", "category": "ETF", "year": 2023, "month": 6, "amount": 3.32}, {"id": 319, "name": "iShares MSCI Europe ex-UK UCITS ETF EUR", "category": "ETF", "year": 2023, "month": 9, "amount": 0.4}, {"id": 320, "name": "iShares MSCI Europe ex-UK UCITS ETF EUR", "category": "ETF", "year": 2023, "month": 12, "amount": 0.35}, {"id": 321, "name": "HSBC MSCI China USD UCITS ETF Distributing", "category": "ETF", "year": 2023, "month": 2, "amount": 0.93}, {"id": 322, "name": "HSBC MSCI China USD UCITS ETF Distributing", "category": "ETF", "year": 2023, "month": 8, "amount": 1.22}, {"id": 323, "name": "Vanguard FTSE All-World High Dividend Yield UCITS ETF", "category": "ETF", "year": 2023, "month": 4, "amount": 1.3}, {"id": 324, "name": "Vanguard FTSE All-World High Dividend Yield UCITS ETF", "category": "ETF", "year": 2023, "month": 6, "amount": 2.66}, {"id": 325, "name": "Vanguard FTSE All-World High Dividend Yield UCITS ETF", "category": "ETF", "year": 2023, "month": 9, "amount": 1.94}, {"id": 326, "name": "Vanguard FTSE All-World High Dividend Yield UCITS ETF", "category": "ETF", "year": 2023, "month": 12, "amount": 1.63}, {"id": 327, "name": "SPDR S&P Euro Dividend Aristocrats UCITS ETF (Dist)", "category": "ETF", "year": 2023, "month": 3, "amount": 0.68}, {"id": 328, "name": "SPDR S&P Euro Dividend Aristocrats UCITS ETF (Dist)", "category": "ETF", "year": 2023, "month": 9, "amount": 5.99}, {"id": 329, "name": "Fidelity Global Quality Income UCITS ETF", "category": "ETF", "year": 2023, "month": 2, "amount": 0.62}, {"id": 330, "name": "Fidelity Global Quality Income UCITS ETF", "category": "ETF", "year": 2023, "month": 6, "amount": 1.66}, {"id": 331, "name": "Fidelity Global Quality Income UCITS ETF", "category": "ETF", "year": 2023, "month": 8, "amount": 1.11}, {"id": 332, "name": "Fidelity Global Quality Income UCITS ETF", "category": "ETF", "year": 2023, "month": 11, "amount": 1.13}, {"id": 333, "name": "Omega Healthcare Investors, Inc", "category": "REIT", "year": 2023, "month": 2, "amount": 4.16}, {"id": 334, "name": "Omega Healthcare Investors, Inc", "category": "REIT", "year": 2023, "month": 5, "amount": 4.31}, {"id": 335, "name": "Omega Healthcare Investors, Inc", "category": "REIT", "year": 2023, "month": 8, "amount": 4.59}, {"id": 336, "name": "Omega Healthcare Investors, Inc", "category": "REIT", "year": 2023, "month": 11, "amount": 4.85}, {"id": 337, "name": "Medical Properties Trust, Inc", "category": "REIT", "year": 2023, "month": 1, "amount": 2.46}, {"id": 338, "name": "Medical Properties Trust, Inc", "category": "REIT", "year": 2023, "month": 4, "amount": 2.82}, {"id": 339, "name": "Medical Properties Trust, Inc", "category": "REIT", "year": 2023, "month": 7, "amount": 3.24}, {"id": 340, "name": "Medical Properties Trust, Inc", "category": "REIT", "year": 2023, "month": 10, "amount": 2.03}, {"id": 341, "name": "Industrial Logistic Properties Trust", "category": "REIT", "year": 2023, "month": 2, "amount": 0.04}, {"id": 342, "name": "Industrial Logistic Properties Trust", "category": "REIT", "year": 2023, "month": 5, "amount": 0.04}, {"id": 343, "name": "Industrial Logistic Properties Trust", "category": "REIT", "year": 2023, "month": 8, "amount": 0.04}, {"id": 344, "name": "Industrial Logistic Properties Trust", "category": "REIT", "year": 2023, "month": 11, "amount": 0.04}, {"id": 345, "name": "EPR Properties REIT", "category": "REIT", "year": 2023, "month": 1, "amount": 0.88}, {"id": 346, "name": "EPR Properties REIT", "category": "REIT", "year": 2023, "month": 2, "amount": 0.93}, {"id": 347, "name": "EPR Properties REIT", "category": "REIT", "year": 2023, "month": 3, "amount": 0.96}, {"id": 348, "name": "EPR Properties REIT", "category": "REIT", "year": 2023, "month": 4, "amount": 0.96}, {"id": 349, "name": "EPR Properties REIT", "category": "REIT", "year": 2023, "month": 5, "amount": 1.0}, {"id": 350, "name": "EPR Properties REIT", "category": "REIT", "year": 2023, "month": 6, "amount": 1.03}, {"id": 351, "name": "EPR Properties REIT", "category": "REIT", "year": 2023, "month": 7, "amount": 1.03}, {"id": 352, "name": "EPR Properties REIT", "category": "REIT", "year": 2023, "month": 8, "amount": 1.11}, {"id": 353, "name": "EPR Properties REIT", "category": "REIT", "year": 2023, "month": 9, "amount": 1.16}, {"id": 354, "name": "EPR Properties REIT", "category": "REIT", "year": 2023, "month": 10, "amount": 1.2}, {"id": 355, "name": "EPR Properties REIT", "category": "REIT", "year": 2023, "month": 11, "amount": 1.22}, {"id": 356, "name": "EPR Properties REIT", "category": "REIT", "year": 2023, "month": 12, "amount": 1.23}, {"id": 357, "name": "Realty income", "category": "REIT", "year": 2023, "month": 1, "amount": 0.95}, {"id": 358, "name": "Realty income", "category": "REIT", "year": 2023, "month": 2, "amount": 0.98}, {"id": 359, "name": "Realty income", "category": "REIT", "year": 2023, "month": 3, "amount": 1.03}, {"id": 360, "name": "Realty income", "category": "REIT", "year": 2023, "month": 4, "amount": 1.02}, {"id": 361, "name": "Realty income", "category": "REIT", "year": 2023, "month": 5, "amount": 1.05}, {"id": 362, "name": "Realty income", "category": "REIT", "year": 2023, "month": 6, "amount": 1.07}, {"id": 363, "name": "Realty income", "category": "REIT", "year": 2023, "month": 7, "amount": 1.07}, {"id": 364, "name": "Realty income", "category": "REIT", "year": 2023, "month": 8, "amount": 1.12}, {"id": 365, "name": "Realty income", "category": "REIT", "year": 2023, "month": 9, "amount": 1.17}, {"id": 366, "name": "Realty income", "category": "REIT", "year": 2023, "month": 10, "amount": 1.21}, {"id": 367, "name": "Realty income", "category": "REIT", "year": 2023, "month": 11, "amount": 1.19}, {"id": 368, "name": "Realty income", "category": "REIT", "year": 2023, "month": 12, "amount": 1.2}, {"id": 369, "name": "Federal Realty investment", "category": "REIT", "year": 2023, "month": 1, "amount": 1.36}, {"id": 370, "name": "Federal Realty investment", "category": "REIT", "year": 2023, "month": 4, "amount": 1.48}, {"id": 371, "name": "Federal Realty investment", "category": "REIT", "year": 2023, "month": 7, "amount": 1.59}, {"id": 372, "name": "Federal Realty investment", "category": "REIT", "year": 2023, "month": 10, "amount": 1.84}, {"id": 373, "name": "SL Green Realty Corporation", "category": "REIT", "year": 2023, "month": 1, "amount": 1.07}, {"id": 374, "name": "SL Green Realty Corporation", "category": "REIT", "year": 2023, "month": 2, "amount": 1.11}, {"id": 375, "name": "SL Green Realty Corporation", "category": "REIT", "year": 2023, "month": 3, "amount": 1.15}, {"id": 376, "name": "SL Green Realty Corporation", "category": "REIT", "year": 2023, "month": 4, "amount": 1.15}, {"id": 377, "name": "SL Green Realty Corporation", "category": "REIT", "year": 2023, "month": 5, "amount": 1.21}, {"id": 378, "name": "SL Green Realty Corporation", "category": "REIT", "year": 2023, "month": 6, "amount": 1.26}, {"id": 379, "name": "SL Green Realty Corporation", "category": "REIT", "year": 2023, "month": 7, "amount": 1.27}, {"id": 380, "name": "SL Green Realty Corporation", "category": "REIT", "year": 2023, "month": 8, "amount": 1.35}, {"id": 381, "name": "SL Green Realty Corporation", "category": "REIT", "year": 2023, "month": 9, "amount": 1.41}, {"id": 382, "name": "SL Green Realty Corporation", "category": "REIT", "year": 2023, "month": 10, "amount": 1.48}, {"id": 383, "name": "SL Green Realty Corporation", "category": "REIT", "year": 2023, "month": 11, "amount": 1.46}, {"id": 384, "name": "SL Green Realty Corporation", "category": "REIT", "year": 2023, "month": 12, "amount": 1.48}, {"id": 385, "name": "Boston Properties", "category": "REIT", "year": 2023, "month": 1, "amount": 1.54}, {"id": 386, "name": "Boston Properties", "category": "REIT", "year": 2023, "month": 5, "amount": 1.71}, {"id": 387, "name": "Boston Properties", "category": "REIT", "year": 2023, "month": 8, "amount": 1.96}, {"id": 388, "name": "Boston Properties", "category": "REIT", "year": 2023, "month": 10, "amount": 2.21}, {"id": 389, "name": "Agree Realty Corporation", "category": "REIT", "year": 2023, "month": 1, "amount": 0.06}, {"id": 390, "name": "Agree Realty Corporation", "category": "REIT", "year": 2023, "month": 2, "amount": 0.08}, {"id": 391, "name": "Agree Realty Corporation", "category": "REIT", "year": 2023, "month": 3, "amount": 0.1}, {"id": 392, "name": "Agree Realty Corporation", "category": "REIT", "year": 2023, "month": 4, "amount": 0.13}, {"id": 393, "name": "Agree Realty Corporation", "category": "REIT", "year": 2023, "month": 5, "amount": 0.17}, {"id": 394, "name": "Agree Realty Corporation", "category": "REIT", "year": 2023, "month": 6, "amount": 0.2}, {"id": 395, "name": "Agree Realty Corporation", "category": "REIT", "year": 2023, "month": 7, "amount": 0.23}, {"id": 396, "name": "Agree Realty Corporation", "category": "REIT", "year": 2023, "month": 8, "amount": 0.25}, {"id": 397, "name": "Agree Realty Corporation", "category": "REIT", "year": 2023, "month": 9, "amount": 0.28}, {"id": 398, "name": "Agree Realty Corporation", "category": "REIT", "year": 2023, "month": 10, "amount": 0.3}, {"id": 399, "name": "Agree Realty Corporation", "category": "REIT", "year": 2023, "month": 11, "amount": 0.32}, {"id": 400, "name": "Agree Realty Corporation", "category": "REIT", "year": 2023, "month": 12, "amount": 0.34}, {"id": 401, "name": "LTC Properties", "category": "REIT", "year": 2023, "month": 1, "amount": 0.81}, {"id": 402, "name": "LTC Properties", "category": "REIT", "year": 2023, "month": 2, "amount": 0.82}, {"id": 403, "name": "LTC Properties", "category": "REIT", "year": 2023, "month": 3, "amount": 0.87}, {"id": 404, "name": "LTC Properties", "category": "REIT", "year": 2023, "month": 4, "amount": 0.88}, {"id": 405, "name": "LTC Properties", "category": "REIT", "year": 2023, "month": 5, "amount": 0.9}, {"id": 406, "name": "LTC Properties", "category": "REIT", "year": 2023, "month": 6, "amount": 0.96}, {"id": 407, "name": "LTC Properties", "category": "REIT", "year": 2023, "month": 7, "amount": 1.95}, {"id": 408, "name": "LTC Properties", "category": "REIT", "year": 2023, "month": 8, "amount": 1.02}, {"id": 409, "name": "LTC Properties", "category": "REIT", "year": 2023, "month": 9, "amount": 1.08}, {"id": 410, "name": "LTC Properties", "category": "REIT", "year": 2023, "month": 10, "amount": 1.1}, {"id": 411, "name": "LTC Properties", "category": "REIT", "year": 2023, "month": 11, "amount": 1.1}, {"id": 412, "name": "LTC Properties", "category": "REIT", "year": 2023, "month": 12, "amount": 1.14}, {"id": 413, "name": "Digital Realty", "category": "REIT", "year": 2023, "month": 1, "amount": 0.85}, {"id": 414, "name": "Digital Realty", "category": "REIT", "year": 2023, "month": 4, "amount": 1.0}, {"id": 415, "name": "Digital Realty", "category": "REIT", "year": 2023, "month": 7, "amount": 1.16}, {"id": 416, "name": "Digital Realty", "category": "REIT", "year": 2023, "month": 9, "amount": 1.3}, {"id": 417, "name": "Orion office", "category": "REIT", "year": 2023, "month": 1, "amount": 0.06}, {"id": 418, "name": "Orion office", "category": "REIT", "year": 2023, "month": 4, "amount": 0.06}, {"id": 419, "name": "Orion office", "category": "REIT", "year": 2023, "month": 7, "amount": 0.05}, {"id": 420, "name": "Orion office", "category": "REIT", "year": 2023, "month": 10, "amount": 0.06}, {"id": 421, "name": "NNN inc", "category": "REIT", "year": 2023, "month": 8, "amount": 0.11}, {"id": 422, "name": "NNN inc", "category": "REIT", "year": 2023, "month": 11, "amount": 0.25}, {"id": 423, "name": "VICI Properties", "category": "REIT", "year": 2023, "month": 10, "amount": 0.09}, {"id": 424, "name": "American Tower", "category": "REIT", "year": 2023, "month": 10, "amount": 0.09}, {"id": 425, "name": "Daily Dividends", "category": "Actions", "year": 2023, "month": 1, "amount": 1.73}, {"id": 426, "name": "Daily Dividends", "category": "Actions", "year": 2023, "month": 2, "amount": 1.81}, {"id": 427, "name": "Daily Dividends", "category": "Actions", "year": 2023, "month": 3, "amount": 2.27}, {"id": 428, "name": "Daily Dividends", "category": "Actions", "year": 2023, "month": 4, "amount": 2.28}, {"id": 429, "name": "Daily Dividends", "category": "Actions", "year": 2023, "month": 5, "amount": 2.83}, {"id": 430, "name": "Daily Dividends", "category": "Actions", "year": 2023, "month": 6, "amount": 2.6}, {"id": 431, "name": "Daily Dividends", "category": "Actions", "year": 2023, "month": 7, "amount": 2.69}, {"id": 432, "name": "Daily Dividends", "category": "Actions", "year": 2023, "month": 8, "amount": 3.31}, {"id": 433, "name": "Daily Dividends", "category": "Actions", "year": 2023, "month": 9, "amount": 3.72}, {"id": 434, "name": "Daily Dividends", "category": "Actions", "year": 2023, "month": 10, "amount": 3.24}, {"id": 435, "name": "Daily Dividends", "category": "Actions", "year": 2023, "month": 11, "amount": 3.32}, {"id": 436, "name": "Daily Dividends", "category": "Actions", "year": 2023, "month": 12, "amount": 3.36}, {"id": 437, "name": "Intérêt journalier", "category": "Obligations/Intérêts", "year": 2023, "month": 7, "amount": 0.01}, {"id": 438, "name": "Intérêt journalier", "category": "Obligations/Intérêts", "year": 2023, "month": 8, "amount": 0.01}, {"id": 439, "name": "Intérêt journalier", "category": "Obligations/Intérêts", "year": 2023, "month": 9, "amount": 0.02}, {"id": 440, "name": "Intérêt journalier", "category": "Obligations/Intérêts", "year": 2023, "month": 10, "amount": 0.01}, {"id": 441, "name": "Intérêt journalier", "category": "Obligations/Intérêts", "year": 2023, "month": 11, "amount": 0.01}, {"id": 442, "name": "Intérêt journalier", "category": "Obligations/Intérêts", "year": 2023, "month": 12, "amount": 0.02}, {"id": 443, "name": "Bricks", "category": "Crowdfunding", "year": 2023, "month": 1, "amount": 0.73}, {"id": 444, "name": "Bricks", "category": "Crowdfunding", "year": 2023, "month": 2, "amount": 0.54}, {"id": 445, "name": "Bricks", "category": "Crowdfunding", "year": 2023, "month": 3, "amount": 0.51}, {"id": 446, "name": "Bricks", "category": "Crowdfunding", "year": 2023, "month": 4, "amount": 0.7}, {"id": 447, "name": "Bricks", "category": "Crowdfunding", "year": 2023, "month": 5, "amount": 0.75}, {"id": 448, "name": "Bricks", "category": "Crowdfunding", "year": 2023, "month": 6, "amount": 0.88}, {"id": 449, "name": "Bricks", "category": "Crowdfunding", "year": 2023, "month": 7, "amount": 0.88}, {"id": 450, "name": "Bricks", "category": "Crowdfunding", "year": 2023, "month": 8, "amount": 0.91}, {"id": 451, "name": "Bricks", "category": "Crowdfunding", "year": 2023, "month": 9, "amount": 0.88}, {"id": 452, "name": "Bricks", "category": "Crowdfunding", "year": 2023, "month": 10, "amount": 0.96}, {"id": 453, "name": "Bricks", "category": "Crowdfunding", "year": 2023, "month": 11, "amount": 1.04}, {"id": 454, "name": "Bricks", "category": "Crowdfunding", "year": 2023, "month": 12, "amount": 1.15}, {"id": 455, "name": "Tantiem", "category": "Crowdfunding", "year": 2023, "month": 9, "amount": 0.31}, {"id": 456, "name": "Tantiem", "category": "Crowdfunding", "year": 2023, "month": 10, "amount": 0.54}, {"id": 457, "name": "Tantiem", "category": "Crowdfunding", "year": 2023, "month": 11, "amount": 3.23}, {"id": 458, "name": "Tantiem", "category": "Crowdfunding", "year": 2023, "month": 12, "amount": 0.31}, {"id": 459, "name": "Intérêt Mintos", "category": "Obligations/Intérêts", "year": 2023, "month": 1, "amount": 9.79}, {"id": 460, "name": "Intérêt Mintos", "category": "Obligations/Intérêts", "year": 2023, "month": 2, "amount": 10.6}, {"id": 461, "name": "Intérêt Mintos", "category": "Obligations/Intérêts", "year": 2023, "month": 3, "amount": 13.18}, {"id": 462, "name": "Intérêt Mintos", "category": "Obligations/Intérêts", "year": 2023, "month": 4, "amount": 13.22}, {"id": 463, "name": "Intérêt Mintos", "category": "Obligations/Intérêts", "year": 2023, "month": 5, "amount": 12.78}, {"id": 464, "name": "Intérêt Mintos", "category": "Obligations/Intérêts", "year": 2023, "month": 6, "amount": 13.23}, {"id": 465, "name": "Intérêt Mintos", "category": "Obligations/Intérêts", "year": 2023, "month": 7, "amount": 64.42}, {"id": 466, "name": "Intérêt Mintos", "category": "Obligations/Intérêts", "year": 2023, "month": 8, "amount": 15.78}, {"id": 467, "name": "Intérêt Mintos", "category": "Obligations/Intérêts", "year": 2023, "month": 9, "amount": 16.02}, {"id": 468, "name": "Intérêt Mintos", "category": "Obligations/Intérêts", "year": 2023, "month": 10, "amount": 68.19}, {"id": 469, "name": "Intérêt Mintos", "category": "Obligations/Intérêts", "year": 2023, "month": 11, "amount": 18.39}, {"id": 470, "name": "Intérêt Mintos", "category": "Obligations/Intérêts", "year": 2023, "month": 12, "amount": 18.22}, {"id": 471, "name": "Intérêt Peerberry", "category": "Obligations/Intérêts", "year": 2023, "month": 1, "amount": 4.64}, {"id": 472, "name": "Intérêt Peerberry", "category": "Obligations/Intérêts", "year": 2023, "month": 2, "amount": 4.98}, {"id": 473, "name": "Intérêt Peerberry", "category": "Obligations/Intérêts", "year": 2023, "month": 3, "amount": 5.55}, {"id": 474, "name": "Intérêt Peerberry", "category": "Obligations/Intérêts", "year": 2023, "month": 4, "amount": 6.16}, {"id": 475, "name": "Intérêt Peerberry", "category": "Obligations/Intérêts", "year": 2023, "month": 5, "amount": 6.43}, {"id": 476, "name": "Intérêt Peerberry", "category": "Obligations/Intérêts", "year": 2023, "month": 6, "amount": 7.54}, {"id": 477, "name": "Intérêt Peerberry", "category": "Obligations/Intérêts", "year": 2023, "month": 7, "amount": 7.64}, {"id": 478, "name": "Intérêt Peerberry", "category": "Obligations/Intérêts", "year": 2023, "month": 8, "amount": 8.18}, {"id": 479, "name": "Intérêt Peerberry", "category": "Obligations/Intérêts", "year": 2023, "month": 9, "amount": 9.47}, {"id": 480, "name": "Intérêt Peerberry", "category": "Obligations/Intérêts", "year": 2023, "month": 10, "amount": 9.54}, {"id": 481, "name": "Intérêt Peerberry", "category": "Obligations/Intérêts", "year": 2023, "month": 11, "amount": 9.74}, {"id": 482, "name": "Intérêt Peerberry", "category": "Obligations/Intérêts", "year": 2023, "month": 12, "amount": 9.52}, {"id": 483, "name": "Vanguard global aggregate bond UCITS ETF", "category": "ETF", "year": 2024, "month": 1, "amount": 0.57}, {"id": 484, "name": "Vanguard global aggregate bond UCITS ETF", "category": "ETF", "year": 2024, "month": 2, "amount": 0.49}, {"id": 485, "name": "Vanguard global aggregate bond UCITS ETF", "category": "ETF", "year": 2024, "month": 3, "amount": 0.53}, {"id": 486, "name": "Vanguard global aggregate bond UCITS ETF", "category": "ETF", "year": 2024, "month": 4, "amount": 0.52}, {"id": 487, "name": "Vanguard global aggregate bond UCITS ETF", "category": "ETF", "year": 2024, "month": 5, "amount": 0.71}, {"id": 488, "name": "Vanguard global aggregate bond UCITS ETF", "category": "ETF", "year": 2024, "month": 6, "amount": 0.55}, {"id": 489, "name": "Vanguard global aggregate bond UCITS ETF", "category": "ETF", "year": 2024, "month": 7, "amount": 0.62}, {"id": 490, "name": "Vanguard global aggregate bond UCITS ETF", "category": "ETF", "year": 2024, "month": 8, "amount": 0.76}, {"id": 491, "name": "Vanguard global aggregate bond UCITS ETF", "category": "ETF", "year": 2024, "month": 9, "amount": 0.63}, {"id": 492, "name": "Vanguard global aggregate bond UCITS ETF", "category": "ETF", "year": 2024, "month": 10, "amount": 0.7}, {"id": 493, "name": "Vanguard global aggregate bond UCITS ETF", "category": "ETF", "year": 2024, "month": 11, "amount": 0.97}, {"id": 494, "name": "Vanguard global aggregate bond UCITS ETF", "category": "ETF", "year": 2024, "month": 12, "amount": 0.77}, {"id": 495, "name": "Vanguard FTSE Emerging Markets", "category": "ETF", "year": 2024, "month": 3, "amount": 0.62}, {"id": 496, "name": "Vanguard FTSE Emerging Markets", "category": "ETF", "year": 2024, "month": 6, "amount": 2.19}, {"id": 497, "name": "Vanguard FTSE Emerging Markets", "category": "ETF", "year": 2024, "month": 9, "amount": 2.98}, {"id": 498, "name": "Vanguard FTSE Emerging Markets", "category": "ETF", "year": 2024, "month": 12, "amount": 0.87}, {"id": 499, "name": "Vanguard S&P 500 UCITS ETF", "category": "ETF", "year": 2024, "month": 3, "amount": 0.97}, {"id": 500, "name": "Vanguard S&P 500 UCITS ETF", "category": "ETF", "year": 2024, "month": 6, "amount": 0.89}, {"id": 501, "name": "Vanguard S&P 500 UCITS ETF", "category": "ETF", "year": 2024, "month": 9, "amount": 0.98}, {"id": 502, "name": "Vanguard S&P 500 UCITS ETF", "category": "ETF", "year": 2024, "month": 12, "amount": 1.14}, {"id": 503, "name": "Vanguard FTSE Developed Asia Pacific ex japan UCIT ETF", "category": "ETF", "year": 2024, "month": 3, "amount": 1.61}, {"id": 504, "name": "Vanguard FTSE Developed Asia Pacific ex japan UCIT ETF", "category": "ETF", "year": 2024, "month": 6, "amount": 2.66}, {"id": 505, "name": "Vanguard FTSE Developed Asia Pacific ex japan UCIT ETF", "category": "ETF", "year": 2024, "month": 9, "amount": 2.33}, {"id": 506, "name": "Vanguard FTSE Developed Asia Pacific ex japan UCIT ETF", "category": "ETF", "year": 2024, "month": 12, "amount": 1.97}, {"id": 507, "name": "iShares MSCI Europe ex-UK UCITS ETF EUR", "category": "ETF", "year": 2024, "month": 3, "amount": 0.22}, {"id": 508, "name": "iShares MSCI Europe ex-UK UCITS ETF EUR", "category": "ETF", "year": 2024, "month": 6, "amount": 5.0}, {"id": 509, "name": "iShares MSCI Europe ex-UK UCITS ETF EUR", "category": "ETF", "year": 2024, "month": 9, "amount": 0.5}, {"id": 510, "name": "iShares MSCI Europe ex-UK UCITS ETF EUR", "category": "ETF", "year": 2024, "month": 12, "amount": 0.58}, {"id": 511, "name": "HSBC MSCI China USD UCITS ETF Distributing", "category": "ETF", "year": 2024, "month": 2, "amount": 1.95}, {"id": 512, "name": "HSBC MSCI China USD UCITS ETF Distributing", "category": "ETF", "year": 2024, "month": 8, "amount": 2.27}, {"id": 513, "name": "Vanguard FTSE All-World High Dividend Yield UCITS ETF", "category": "ETF", "year": 2024, "month": 3, "amount": 1.61}, {"id": 514, "name": "Vanguard FTSE All-World High Dividend Yield UCITS ETF", "category": "ETF", "year": 2024, "month": 6, "amount": 3.82}, {"id": 515, "name": "Vanguard FTSE All-World High Dividend Yield UCITS ETF", "category": "ETF", "year": 2024, "month": 9, "amount": 2.39}, {"id": 516, "name": "Vanguard FTSE All-World High Dividend Yield UCITS ETF", "category": "ETF", "year": 2024, "month": 12, "amount": 2.28}, {"id": 517, "name": "SPDR S&P Euro Dividend Aristocrats UCITS ETF (Dist)", "category": "ETF", "year": 2024, "month": 3, "amount": 1.25}, {"id": 518, "name": "SPDR S&P Euro Dividend Aristocrats UCITS ETF (Dist)", "category": "ETF", "year": 2024, "month": 10, "amount": 9.13}, {"id": 519, "name": "Fidelity Global Quality Income UCITS ETF", "category": "ETF", "year": 2024, "month": 2, "amount": 0.97}, {"id": 520, "name": "Fidelity Global Quality Income UCITS ETF", "category": "ETF", "year": 2024, "month": 5, "amount": 2.1}, {"id": 521, "name": "Fidelity Global Quality Income UCITS ETF", "category": "ETF", "year": 2024, "month": 8, "amount": 1.17}, {"id": 522, "name": "Fidelity Global Quality Income UCITS ETF", "category": "ETF", "year": 2024, "month": 11, "amount": 1.71}, {"id": 523, "name": "Omega Healthcare Investors, Inc", "category": "REIT", "year": 2024, "month": 2, "amount": 5.14}, {"id": 524, "name": "Omega Healthcare Investors, Inc", "category": "REIT", "year": 2024, "month": 5, "amount": 5.36}, {"id": 525, "name": "Omega Healthcare Investors, Inc", "category": "REIT", "year": 2024, "month": 8, "amount": 5.57}, {"id": 526, "name": "Omega Healthcare Investors, Inc", "category": "REIT", "year": 2024, "month": 11, "amount": 5.89}, {"id": 527, "name": "Medical Properties Trust, Inc", "category": "REIT", "year": 2024, "month": 1, "amount": 2.41}, {"id": 528, "name": "Medical Properties Trust, Inc", "category": "REIT", "year": 2024, "month": 5, "amount": 3.35}, {"id": 529, "name": "Medical Properties Trust, Inc", "category": "REIT", "year": 2024, "month": 7, "amount": 3.53}, {"id": 530, "name": "Medical Properties Trust, Inc", "category": "REIT", "year": 2024, "month": 10, "amount": 2.07}, {"id": 531, "name": "Industrial Logistic Properties Trust", "category": "REIT", "year": 2024, "month": 2, "amount": 0.04}, {"id": 532, "name": "Industrial Logistic Properties Trust", "category": "REIT", "year": 2024, "month": 5, "amount": 0.04}, {"id": 533, "name": "Industrial Logistic Properties Trust", "category": "REIT", "year": 2024, "month": 8, "amount": 0.04}, {"id": 534, "name": "Industrial Logistic Properties Trust", "category": "REIT", "year": 2024, "month": 11, "amount": 0.04}, {"id": 535, "name": "EPR Properties REIT", "category": "REIT", "year": 2024, "month": 1, "amount": 1.26}, {"id": 536, "name": "EPR Properties REIT", "category": "REIT", "year": 2024, "month": 2, "amount": 1.31}, {"id": 537, "name": "EPR Properties REIT", "category": "REIT", "year": 2024, "month": 3, "amount": 1.31}, {"id": 538, "name": "EPR Properties REIT", "category": "REIT", "year": 2024, "month": 4, "amount": 1.45}, {"id": 539, "name": "EPR Properties REIT", "category": "REIT", "year": 2024, "month": 5, "amount": 1.48}, {"id": 540, "name": "EPR Properties REIT", "category": "REIT", "year": 2024, "month": 6, "amount": 1.52}, {"id": 541, "name": "EPR Properties REIT", "category": "REIT", "year": 2024, "month": 7, "amount": 1.52}, {"id": 542, "name": "EPR Properties REIT", "category": "REIT", "year": 2024, "month": 8, "amount": 1.53}, {"id": 543, "name": "EPR Properties REIT", "category": "REIT", "year": 2024, "month": 9, "amount": 1.54}, {"id": 544, "name": "EPR Properties REIT", "category": "REIT", "year": 2024, "month": 11, "amount": 1.69}, {"id": 545, "name": "EPR Properties REIT", "category": "REIT", "year": 2024, "month": 12, "amount": 1.72}, {"id": 546, "name": "Realty income", "category": "REIT", "year": 2024, "month": 1, "amount": 1.23}, {"id": 547, "name": "Realty income", "category": "REIT", "year": 2024, "month": 2, "amount": 1.28}, {"id": 548, "name": "Realty income", "category": "REIT", "year": 2024, "month": 3, "amount": 1.28}, {"id": 549, "name": "Realty income", "category": "REIT", "year": 2024, "month": 4, "amount": 1.34}, {"id": 550, "name": "Realty income", "category": "REIT", "year": 2024, "month": 5, "amount": 1.34}, {"id": 551, "name": "Realty income", "category": "REIT", "year": 2024, "month": 6, "amount": 1.4}, {"id": 552, "name": "Realty income", "category": "REIT", "year": 2024, "month": 7, "amount": 1.41}, {"id": 553, "name": "Realty income", "category": "REIT", "year": 2024, "month": 8, "amount": 1.45}, {"id": 554, "name": "Realty income", "category": "REIT", "year": 2024, "month": 9, "amount": 1.46}, {"id": 555, "name": "Realty income", "category": "REIT", "year": 2024, "month": 10, "amount": 1.51}, {"id": 556, "name": "Realty income", "category": "REIT", "year": 2024, "month": 11, "amount": 1.56}, {"id": 557, "name": "Realty income", "category": "REIT", "year": 2024, "month": 12, "amount": 1.59}, {"id": 558, "name": "Federal Realty investment", "category": "REIT", "year": 2024, "month": 1, "amount": 1.91}, {"id": 559, "name": "Federal Realty investment", "category": "REIT", "year": 2024, "month": 4, "amount": 2.08}, {"id": 560, "name": "Federal Realty investment", "category": "REIT", "year": 2024, "month": 7, "amount": 2.15}, {"id": 561, "name": "Federal Realty investment", "category": "REIT", "year": 2024, "month": 10, "amount": 2.29}, {"id": 562, "name": "SL Green Realty Corporation", "category": "REIT", "year": 2024, "month": 1, "amount": 1.4}, {"id": 563, "name": "SL Green Realty Corporation", "category": "REIT", "year": 2024, "month": 2, "amount": 1.44}, {"id": 564, "name": "SL Green Realty Corporation", "category": "REIT", "year": 2024, "month": 3, "amount": 1.44}, {"id": 565, "name": "SL Green Realty Corporation", "category": "REIT", "year": 2024, "month": 4, "amount": 1.49}, {"id": 566, "name": "SL Green Realty Corporation", "category": "REIT", "year": 2024, "month": 5, "amount": 1.49}, {"id": 567, "name": "SL Green Realty Corporation", "category": "REIT", "year": 2024, "month": 6, "amount": 1.52}, {"id": 568, "name": "SL Green Realty Corporation", "category": "REIT", "year": 2024, "month": 7, "amount": 1.52}, {"id": 569, "name": "SL Green Realty Corporation", "category": "REIT", "year": 2024, "month": 8, "amount": 1.52}, {"id": 570, "name": "SL Green Realty Corporation", "category": "REIT", "year": 2024, "month": 9, "amount": 1.52}, {"id": 571, "name": "SL Green Realty Corporation", "category": "REIT", "year": 2024, "month": 10, "amount": 1.56}, {"id": 572, "name": "SL Green Realty Corporation", "category": "REIT", "year": 2024, "month": 11, "amount": 1.61}, {"id": 573, "name": "SL Green Realty Corporation", "category": "REIT", "year": 2024, "month": 12, "amount": 1.63}, {"id": 574, "name": "Boston Properties", "category": "REIT", "year": 2024, "month": 1, "amount": 2.35}, {"id": 575, "name": "Boston Properties", "category": "REIT", "year": 2024, "month": 4, "amount": 2.55}, {"id": 576, "name": "Boston Properties", "category": "REIT", "year": 2024, "month": 7, "amount": 2.71}, {"id": 577, "name": "Boston Properties", "category": "REIT", "year": 2024, "month": 10, "amount": 2.87}, {"id": 578, "name": "Agree Realty Corporation", "category": "REIT", "year": 2024, "month": 1, "amount": 0.35}, {"id": 579, "name": "Agree Realty Corporation", "category": "REIT", "year": 2024, "month": 2, "amount": 0.38}, {"id": 580, "name": "Agree Realty Corporation", "category": "REIT", "year": 2024, "month": 3, "amount": 0.39}, {"id": 581, "name": "Agree Realty Corporation", "category": "REIT", "year": 2024, "month": 4, "amount": 0.42}, {"id": 582, "name": "Agree Realty Corporation", "category": "REIT", "year": 2024, "month": 5, "amount": 0.44}, {"id": 583, "name": "Agree Realty Corporation", "category": "REIT", "year": 2024, "month": 6, "amount": 0.47}, {"id": 584, "name": "Agree Realty Corporation", "category": "REIT", "year": 2024, "month": 7, "amount": 0.48}, {"id": 585, "name": "Agree Realty Corporation", "category": "REIT", "year": 2024, "month": 8, "amount": 0.49}, {"id": 586, "name": "Agree Realty Corporation", "category": "REIT", "year": 2024, "month": 9, "amount": 0.51}, {"id": 587, "name": "Agree Realty Corporation", "category": "REIT", "year": 2024, "month": 10, "amount": 0.53}, {"id": 588, "name": "Agree Realty Corporation", "category": "REIT", "year": 2024, "month": 11, "amount": 0.56}, {"id": 589, "name": "Agree Realty Corporation", "category": "REIT", "year": 2024, "month": 12, "amount": 0.57}, {"id": 590, "name": "LTC Properties", "category": "REIT", "year": 2024, "month": 1, "amount": 1.19}, {"id": 591, "name": "LTC Properties", "category": "REIT", "year": 2024, "month": 2, "amount": 1.22}, {"id": 592, "name": "LTC Properties", "category": "REIT", "year": 2024, "month": 3, "amount": 1.25}, {"id": 593, "name": "LTC Properties", "category": "REIT", "year": 2024, "month": 4, "amount": 1.29}, {"id": 594, "name": "LTC Properties", "category": "REIT", "year": 2024, "month": 5, "amount": 1.33}, {"id": 595, "name": "LTC Properties", "category": "REIT", "year": 2024, "month": 6, "amount": 1.37}, {"id": 596, "name": "LTC Properties", "category": "REIT", "year": 2024, "month": 7, "amount": 1.38}, {"id": 597, "name": "LTC Properties", "category": "REIT", "year": 2024, "month": 8, "amount": 1.37}, {"id": 598, "name": "LTC Properties", "category": "REIT", "year": 2024, "month": 9, "amount": 1.39}, {"id": 599, "name": "LTC Properties", "category": "REIT", "year": 2024, "month": 10, "amount": 1.43}, {"id": 600, "name": "LTC Properties", "category": "REIT", "year": 2024, "month": 11, "amount": 1.51}, {"id": 601, "name": "LTC Properties", "category": "REIT", "year": 2024, "month": 12, "amount": 1.56}, {"id": 602, "name": "Digital Realty", "category": "REIT", "year": 2024, "month": 1, "amount": 1.36}, {"id": 603, "name": "Digital Realty", "category": "REIT", "year": 2024, "month": 3, "amount": 1.45}, {"id": 604, "name": "Digital Realty", "category": "REIT", "year": 2024, "month": 6, "amount": 1.56}, {"id": 605, "name": "Digital Realty", "category": "REIT", "year": 2024, "month": 9, "amount": 1.57}, {"id": 606, "name": "Orion office", "category": "REIT", "year": 2024, "month": 1, "amount": 0.06}, {"id": 607, "name": "Orion office", "category": "REIT", "year": 2024, "month": 4, "amount": 0.06}, {"id": 608, "name": "Orion office", "category": "REIT", "year": 2024, "month": 7, "amount": 0.06}, {"id": 609, "name": "Orion office", "category": "REIT", "year": 2024, "month": 10, "amount": 0.06}, {"id": 610, "name": "NNN inc", "category": "REIT", "year": 2024, "month": 2, "amount": 0.39}, {"id": 611, "name": "NNN inc", "category": "REIT", "year": 2024, "month": 5, "amount": 0.52}, {"id": 612, "name": "NNN inc", "category": "REIT", "year": 2024, "month": 8, "amount": 0.66}, {"id": 613, "name": "NNN inc", "category": "REIT", "year": 2024, "month": 11, "amount": 0.9}, {"id": 614, "name": "VICI Properties", "category": "REIT", "year": 2024, "month": 1, "amount": 0.22}, {"id": 615, "name": "VICI Properties", "category": "REIT", "year": 2024, "month": 4, "amount": 0.36}, {"id": 616, "name": "VICI Properties", "category": "REIT", "year": 2024, "month": 7, "amount": 0.51}, {"id": 617, "name": "VICI Properties", "category": "REIT", "year": 2024, "month": 10, "amount": 0.66}, {"id": 618, "name": "American Tower", "category": "REIT", "year": 2024, "month": 2, "amount": 0.15}, {"id": 619, "name": "American Tower", "category": "REIT", "year": 2024, "month": 4, "amount": 0.25}, {"id": 620, "name": "American Tower", "category": "REIT", "year": 2024, "month": 7, "amount": 0.31}, {"id": 621, "name": "American Tower", "category": "REIT", "year": 2024, "month": 10, "amount": 0.51}, {"id": 622, "name": "Daily Dividends", "category": "Actions", "year": 2024, "month": 1, "amount": 3.92}, {"id": 623, "name": "Daily Dividends", "category": "Actions", "year": 2024, "month": 2, "amount": 4.0}, {"id": 624, "name": "Daily Dividends", "category": "Actions", "year": 2024, "month": 3, "amount": 3.77}, {"id": 625, "name": "Daily Dividends", "category": "Actions", "year": 2024, "month": 4, "amount": 4.63}, {"id": 626, "name": "Daily Dividends", "category": "Actions", "year": 2024, "month": 5, "amount": 5.4}, {"id": 627, "name": "Daily Dividends", "category": "Actions", "year": 2024, "month": 6, "amount": 4.58}, {"id": 628, "name": "Daily Dividends", "category": "Actions", "year": 2024, "month": 7, "amount": 4.7}, {"id": 629, "name": "Daily Dividends", "category": "Actions", "year": 2024, "month": 8, "amount": 5.0}, {"id": 630, "name": "Daily Dividends", "category": "Actions", "year": 2024, "month": 9, "amount": 5.5}, {"id": 631, "name": "Daily Dividends", "category": "Actions", "year": 2024, "month": 10, "amount": 6.34}, {"id": 632, "name": "Daily Dividends", "category": "Actions", "year": 2024, "month": 11, "amount": 5.19}, {"id": 633, "name": "Daily Dividends", "category": "Actions", "year": 2024, "month": 12, "amount": 4.98}, {"id": 634, "name": "Intérêt journalier", "category": "Obligations/Intérêts", "year": 2024, "month": 1, "amount": 0.03}, {"id": 635, "name": "Intérêt journalier", "category": "Obligations/Intérêts", "year": 2024, "month": 2, "amount": 0.04}, {"id": 636, "name": "Intérêt journalier", "category": "Obligations/Intérêts", "year": 2024, "month": 3, "amount": 0.03}, {"id": 637, "name": "Intérêt journalier", "category": "Obligations/Intérêts", "year": 2024, "month": 4, "amount": 0.3}, {"id": 638, "name": "Intérêt journalier", "category": "Obligations/Intérêts", "year": 2024, "month": 5, "amount": 0.11}, {"id": 639, "name": "Intérêt journalier", "category": "Obligations/Intérêts", "year": 2024, "month": 6, "amount": 0.11}, {"id": 640, "name": "Intérêt journalier", "category": "Obligations/Intérêts", "year": 2024, "month": 7, "amount": 0.13}, {"id": 641, "name": "Intérêt journalier", "category": "Obligations/Intérêts", "year": 2024, "month": 8, "amount": 0.12}, {"id": 642, "name": "Intérêt journalier", "category": "Obligations/Intérêts", "year": 2024, "month": 9, "amount": 0.18}, {"id": 643, "name": "Intérêt journalier", "category": "Obligations/Intérêts", "year": 2024, "month": 10, "amount": 0.12}, {"id": 644, "name": "Intérêt journalier", "category": "Obligations/Intérêts", "year": 2024, "month": 11, "amount": 0.11}, {"id": 645, "name": "Intérêt journalier", "category": "Obligations/Intérêts", "year": 2024, "month": 12, "amount": 0.08}, {"id": 646, "name": "Bricks", "category": "Crowdfunding", "year": 2024, "month": 1, "amount": 1.9}, {"id": 647, "name": "Bricks", "category": "Crowdfunding", "year": 2024, "month": 2, "amount": 2.64}, {"id": 648, "name": "Bricks", "category": "Crowdfunding", "year": 2024, "month": 3, "amount": 3.0}, {"id": 649, "name": "Bricks", "category": "Crowdfunding", "year": 2024, "month": 4, "amount": 4.5}, {"id": 650, "name": "Bricks", "category": "Crowdfunding", "year": 2024, "month": 5, "amount": 5.07}, {"id": 651, "name": "Bricks", "category": "Crowdfunding", "year": 2024, "month": 6, "amount": 8.29}, {"id": 652, "name": "Bricks", "category": "Crowdfunding", "year": 2024, "month": 7, "amount": 7.38}, {"id": 653, "name": "Bricks", "category": "Crowdfunding", "year": 2024, "month": 8, "amount": 9.11}, {"id": 654, "name": "Bricks", "category": "Crowdfunding", "year": 2024, "month": 9, "amount": 8.98}, {"id": 655, "name": "Bricks", "category": "Crowdfunding", "year": 2024, "month": 10, "amount": 10.45}, {"id": 656, "name": "Bricks", "category": "Crowdfunding", "year": 2024, "month": 11, "amount": 11.9}, {"id": 657, "name": "Bricks", "category": "Crowdfunding", "year": 2024, "month": 12, "amount": 11.33}, {"id": 658, "name": "Tantiem", "category": "Crowdfunding", "year": 2024, "month": 1, "amount": 0.63}, {"id": 659, "name": "Tantiem", "category": "Crowdfunding", "year": 2024, "month": 2, "amount": 0.63}, {"id": 660, "name": "Tantiem", "category": "Crowdfunding", "year": 2024, "month": 3, "amount": 0.62}, {"id": 661, "name": "Tantiem", "category": "Crowdfunding", "year": 2024, "month": 4, "amount": 1.17}, {"id": 662, "name": "Tantiem", "category": "Crowdfunding", "year": 2024, "month": 5, "amount": 1.39}, {"id": 663, "name": "Tantiem", "category": "Crowdfunding", "year": 2024, "month": 6, "amount": 1.39}, {"id": 664, "name": "Tantiem", "category": "Crowdfunding", "year": 2024, "month": 7, "amount": 1.4}, {"id": 665, "name": "Tantiem", "category": "Crowdfunding", "year": 2024, "month": 8, "amount": 1.41}, {"id": 666, "name": "Tantiem", "category": "Crowdfunding", "year": 2024, "month": 9, "amount": 1.79}, {"id": 667, "name": "Tantiem", "category": "Crowdfunding", "year": 2024, "month": 10, "amount": 1.81}, {"id": 668, "name": "Tantiem", "category": "Crowdfunding", "year": 2024, "month": 11, "amount": 1.84}, {"id": 669, "name": "Tantiem", "category": "Crowdfunding", "year": 2024, "month": 12, "amount": 1.85}, {"id": 670, "name": "La première brique", "category": "Crowdfunding", "year": 2024, "month": 1, "amount": 0.74}, {"id": 671, "name": "La première brique", "category": "Crowdfunding", "year": 2024, "month": 2, "amount": 0.76}, {"id": 672, "name": "La première brique", "category": "Crowdfunding", "year": 2024, "month": 3, "amount": 0.77}, {"id": 673, "name": "La première brique", "category": "Crowdfunding", "year": 2024, "month": 4, "amount": 1.11}, {"id": 674, "name": "La première brique", "category": "Crowdfunding", "year": 2024, "month": 5, "amount": 5.75}, {"id": 675, "name": "La première brique", "category": "Crowdfunding", "year": 2024, "month": 6, "amount": 3.69}, {"id": 676, "name": "La première brique", "category": "Crowdfunding", "year": 2024, "month": 7, "amount": 4.41}, {"id": 677, "name": "La première brique", "category": "Crowdfunding", "year": 2024, "month": 8, "amount": 2.14}, {"id": 678, "name": "La première brique", "category": "Crowdfunding", "year": 2024, "month": 9, "amount": 4.78}, {"id": 679, "name": "La première brique", "category": "Crowdfunding", "year": 2024, "month": 10, "amount": 3.03}, {"id": 680, "name": "La première brique", "category": "Crowdfunding", "year": 2024, "month": 11, "amount": 5.21}, {"id": 681, "name": "La première brique", "category": "Crowdfunding", "year": 2024, "month": 12, "amount": 8.64}, {"id": 682, "name": "Intérêt Mintos", "category": "Obligations/Intérêts", "year": 2024, "month": 1, "amount": 16.28}, {"id": 683, "name": "Intérêt Mintos", "category": "Obligations/Intérêts", "year": 2024, "month": 2, "amount": 17.1}, {"id": 684, "name": "Intérêt Mintos", "category": "Obligations/Intérêts", "year": 2024, "month": 3, "amount": 17.47}, {"id": 685, "name": "Intérêt Mintos", "category": "Obligations/Intérêts", "year": 2024, "month": 4, "amount": 17.03}, {"id": 686, "name": "Intérêt Mintos", "category": "Obligations/Intérêts", "year": 2024, "month": 5, "amount": 18.29}, {"id": 687, "name": "Intérêt Mintos", "category": "Obligations/Intérêts", "year": 2024, "month": 6, "amount": 16.39}, {"id": 688, "name": "Intérêt Mintos", "category": "Obligations/Intérêts", "year": 2024, "month": 7, "amount": 19.59}, {"id": 689, "name": "Intérêt Mintos", "category": "Obligations/Intérêts", "year": 2024, "month": 8, "amount": 19.53}, {"id": 690, "name": "Intérêt Mintos", "category": "Obligations/Intérêts", "year": 2024, "month": 9, "amount": 21.29}, {"id": 691, "name": "Intérêt Mintos", "category": "Obligations/Intérêts", "year": 2024, "month": 10, "amount": 20.97}, {"id": 692, "name": "Intérêt Mintos", "category": "Obligations/Intérêts", "year": 2024, "month": 11, "amount": 24.34}, {"id": 693, "name": "Intérêt Mintos", "category": "Obligations/Intérêts", "year": 2024, "month": 12, "amount": 23.12}, {"id": 694, "name": "Intérêt Peerberry", "category": "Obligations/Intérêts", "year": 2024, "month": 1, "amount": 10.78}, {"id": 695, "name": "Intérêt Peerberry", "category": "Obligations/Intérêts", "year": 2024, "month": 2, "amount": 10.37}, {"id": 696, "name": "Intérêt Peerberry", "category": "Obligations/Intérêts", "year": 2024, "month": 3, "amount": 12.15}, {"id": 697, "name": "Intérêt Peerberry", "category": "Obligations/Intérêts", "year": 2024, "month": 4, "amount": 11.86}, {"id": 698, "name": "Intérêt Peerberry", "category": "Obligations/Intérêts", "year": 2024, "month": 5, "amount": 12.24}, {"id": 699, "name": "Intérêt Peerberry", "category": "Obligations/Intérêts", "year": 2024, "month": 6, "amount": 12.62}, {"id": 700, "name": "Intérêt Peerberry", "category": "Obligations/Intérêts", "year": 2024, "month": 7, "amount": 14.3}, {"id": 701, "name": "Intérêt Peerberry", "category": "Obligations/Intérêts", "year": 2024, "month": 8, "amount": 13.56}, {"id": 702, "name": "Intérêt Peerberry", "category": "Obligations/Intérêts", "year": 2024, "month": 9, "amount": 14.02}, {"id": 703, "name": "Intérêt Peerberry", "category": "Obligations/Intérêts", "year": 2024, "month": 10, "amount": 14.88}, {"id": 704, "name": "Intérêt Peerberry", "category": "Obligations/Intérêts", "year": 2024, "month": 11, "amount": 14.07}, {"id": 705, "name": "Intérêt Peerberry", "category": "Obligations/Intérêts", "year": 2024, "month": 12, "amount": 15.48}, {"id": 706, "name": "Obligation Mintos", "category": "Obligations/Intérêts", "year": 2024, "month": 2, "amount": 1.54}, {"id": 707, "name": "Obligation Mintos", "category": "Obligations/Intérêts", "year": 2024, "month": 5, "amount": 1.54}, {"id": 708, "name": "Obligation Mintos", "category": "Obligations/Intérêts", "year": 2024, "month": 8, "amount": 1.54}, {"id": 709, "name": "Obligation Mintos", "category": "Obligations/Intérêts", "year": 2024, "month": 11, "amount": 1.54}, {"id": 710, "name": "Vanguard global aggregate bond UCITS ETF", "category": "ETF", "year": 2025, "month": 1, "amount": 0.99}, {"id": 711, "name": "Vanguard global aggregate bond UCITS ETF", "category": "ETF", "year": 2025, "month": 2, "amount": 0.8}, {"id": 712, "name": "Vanguard global aggregate bond UCITS ETF", "category": "ETF", "year": 2025, "month": 4, "amount": 1.04}, {"id": 713, "name": "Vanguard global aggregate bond UCITS ETF", "category": "ETF", "year": 2025, "month": 5, "amount": 0.81}, {"id": 714, "name": "Vanguard global aggregate bond UCITS ETF", "category": "ETF", "year": 2025, "month": 6, "amount": 1.04}, {"id": 715, "name": "Vanguard global aggregate bond UCITS ETF", "category": "ETF", "year": 2025, "month": 7, "amount": 1.89}, {"id": 716, "name": "Vanguard global aggregate bond UCITS ETF", "category": "ETF", "year": 2025, "month": 9, "amount": 1.08}, {"id": 717, "name": "Vanguard global aggregate bond UCITS ETF", "category": "ETF", "year": 2025, "month": 10, "amount": 1.77}, {"id": 718, "name": "Vanguard global aggregate bond UCITS ETF", "category": "ETF", "year": 2025, "month": 12, "amount": 2.24}, {"id": 719, "name": "Vanguard FTSE Emerging Markets", "category": "ETF", "year": 2025, "month": 4, "amount": 1.69}, {"id": 720, "name": "Vanguard FTSE Emerging Markets", "category": "ETF", "year": 2025, "month": 7, "amount": 2.94}, {"id": 721, "name": "Vanguard FTSE Emerging Markets", "category": "ETF", "year": 2025, "month": 10, "amount": 2.84}, {"id": 722, "name": "Vanguard FTSE Emerging Markets", "category": "ETF", "year": 2025, "month": 12, "amount": 1.79}, {"id": 723, "name": "Vanguard S&P 500 UCITS ETF", "category": "ETF", "year": 2025, "month": 4, "amount": 1.2}, {"id": 724, "name": "Vanguard S&P 500 UCITS ETF", "category": "ETF", "year": 2025, "month": 7, "amount": 1.12}, {"id": 725, "name": "Vanguard S&P 500 UCITS ETF", "category": "ETF", "year": 2025, "month": 10, "amount": 1.13}, {"id": 726, "name": "Vanguard S&P 500 UCITS ETF", "category": "ETF", "year": 2025, "month": 12, "amount": 1.14}, {"id": 727, "name": "Vanguard FTSE Developed Asia Pacific ex japan UCIT ETF", "category": "ETF", "year": 2025, "month": 4, "amount": 3.02}, {"id": 728, "name": "Vanguard FTSE Developed Asia Pacific ex japan UCIT ETF", "category": "ETF", "year": 2025, "month": 7, "amount": 2.61}, {"id": 729, "name": "Vanguard FTSE Developed Asia Pacific ex japan UCIT ETF", "category": "ETF", "year": 2025, "month": 10, "amount": 3.36}, {"id": 730, "name": "Vanguard FTSE Developed Asia Pacific ex japan UCIT ETF", "category": "ETF", "year": 2025, "month": 12, "amount": 1.77}, {"id": 731, "name": "iShares MSCI Europe ex-UK UCITS ETF EUR", "category": "ETF", "year": 2025, "month": 3, "amount": 0.37}, {"id": 732, "name": "iShares MSCI Europe ex-UK UCITS ETF EUR", "category": "ETF", "year": 2025, "month": 6, "amount": 6.58}, {"id": 733, "name": "iShares MSCI Europe ex-UK UCITS ETF EUR", "category": "ETF", "year": 2025, "month": 9, "amount": 0.56}, {"id": 734, "name": "iShares MSCI Europe ex-UK UCITS ETF EUR", "category": "ETF", "year": 2025, "month": 12, "amount": 0.82}, {"id": 735, "name": "HSBC MSCI China USD UCITS ETF Distributing", "category": "ETF", "year": 2025, "month": 2, "amount": 3.61}, {"id": 736, "name": "HSBC MSCI China USD UCITS ETF Distributing", "category": "ETF", "year": 2025, "month": 8, "amount": 4.42}, {"id": 737, "name": "Vanguard FTSE All-World High Dividend Yield UCITS ETF", "category": "ETF", "year": 2025, "month": 4, "amount": 2.41}, {"id": 738, "name": "Vanguard FTSE All-World High Dividend Yield UCITS ETF", "category": "ETF", "year": 2025, "month": 7, "amount": 4.53}, {"id": 739, "name": "Vanguard FTSE All-World High Dividend Yield UCITS ETF", "category": "ETF", "year": 2025, "month": 10, "amount": 2.59}, {"id": 740, "name": "Vanguard FTSE All-World High Dividend Yield UCITS ETF", "category": "ETF", "year": 2025, "month": 12, "amount": 2.6}, {"id": 741, "name": "SPDR S&P Euro Dividend Aristocrats UCITS ETF (Dist)", "category": "ETF", "year": 2025, "month": 4, "amount": 3.21}, {"id": 742, "name": "SPDR S&P Euro Dividend Aristocrats UCITS ETF (Dist)", "category": "ETF", "year": 2025, "month": 9, "amount": 12.99}, {"id": 743, "name": "Fidelity Global Quality Income UCITS ETF", "category": "ETF", "year": 2025, "month": 2, "amount": 1.23}, {"id": 744, "name": "Fidelity Global Quality Income UCITS ETF", "category": "ETF", "year": 2025, "month": 5, "amount": 2.03}, {"id": 745, "name": "Fidelity Global Quality Income UCITS ETF", "category": "ETF", "year": 2025, "month": 8, "amount": 1.54}, {"id": 746, "name": "Fidelity Global Quality Income UCITS ETF", "category": "ETF", "year": 2025, "month": 11, "amount": 1.53}, {"id": 747, "name": "Omega Healthcare Investors, Inc", "category": "REIT", "year": 2025, "month": 2, "amount": 6.21}, {"id": 748, "name": "Omega Healthcare Investors, Inc", "category": "REIT", "year": 2025, "month": 5, "amount": 5.93}, {"id": 749, "name": "Omega Healthcare Investors, Inc", "category": "REIT", "year": 2025, "month": 8, "amount": 5.85}, {"id": 750, "name": "Omega Healthcare Investors, Inc", "category": "REIT", "year": 2025, "month": 11, "amount": 6.08}, {"id": 751, "name": "Medical Properties Trust, Inc", "category": "REIT", "year": 2025, "month": 1, "amount": 2.35}, {"id": 752, "name": "Medical Properties Trust, Inc", "category": "REIT", "year": 2025, "month": 4, "amount": 2.39}, {"id": 753, "name": "Medical Properties Trust, Inc", "category": "REIT", "year": 2025, "month": 7, "amount": 2.4}, {"id": 754, "name": "Medical Properties Trust, Inc", "category": "REIT", "year": 2025, "month": 10, "amount": 2.62}, {"id": 755, "name": "Industrial Logistic Properties Trust", "category": "REIT", "year": 2025, "month": 2, "amount": 0.04}, {"id": 756, "name": "Industrial Logistic Properties Trust", "category": "REIT", "year": 2025, "month": 5, "amount": 0.04}, {"id": 757, "name": "Industrial Logistic Properties Trust", "category": "REIT", "year": 2025, "month": 8, "amount": 0.17}, {"id": 758, "name": "Industrial Logistic Properties Trust", "category": "REIT", "year": 2025, "month": 11, "amount": 0.18}, {"id": 759, "name": "EPR Properties REIT", "category": "REIT", "year": 2025, "month": 1, "amount": 1.81}, {"id": 760, "name": "EPR Properties REIT", "category": "REIT", "year": 2025, "month": 2, "amount": 1.8}, {"id": 761, "name": "EPR Properties REIT", "category": "REIT", "year": 2025, "month": 3, "amount": 1.79}, {"id": 762, "name": "EPR Properties REIT", "category": "REIT", "year": 2025, "month": 4, "amount": 1.79}, {"id": 763, "name": "EPR Properties REIT", "category": "REIT", "year": 2025, "month": 5, "amount": 1.84}, {"id": 764, "name": "EPR Properties REIT", "category": "REIT", "year": 2025, "month": 6, "amount": 1.79}, {"id": 765, "name": "EPR Properties REIT", "category": "REIT", "year": 2025, "month": 7, "amount": 1.79}, {"id": 766, "name": "EPR Properties REIT", "category": "REIT", "year": 2025, "month": 8, "amount": 1.81}, {"id": 767, "name": "EPR Properties REIT", "category": "REIT", "year": 2025, "month": 9, "amount": 1.93}, {"id": 768, "name": "EPR Properties REIT", "category": "REIT", "year": 2025, "month": 10, "amount": 1.97}, {"id": 769, "name": "EPR Properties REIT", "category": "REIT", "year": 2025, "month": 11, "amount": 1.99}, {"id": 770, "name": "EPR Properties REIT", "category": "REIT", "year": 2025, "month": 12, "amount": 2.02}, {"id": 771, "name": "Realty income", "category": "REIT", "year": 2025, "month": 1, "amount": 1.65}, {"id": 772, "name": "Realty income", "category": "REIT", "year": 2025, "month": 2, "amount": 1.64}, {"id": 773, "name": "Realty income", "category": "REIT", "year": 2025, "month": 3, "amount": 1.64}, {"id": 774, "name": "Realty income", "category": "REIT", "year": 2025, "month": 4, "amount": 1.61}, {"id": 775, "name": "Realty income", "category": "REIT", "year": 2025, "month": 5, "amount": 1.65}, {"id": 776, "name": "Realty income", "category": "REIT", "year": 2025, "month": 6, "amount": 1.61}, {"id": 777, "name": "Realty income", "category": "REIT", "year": 2025, "month": 7, "amount": 1.62}, {"id": 778, "name": "Realty income", "category": "REIT", "year": 2025, "month": 8, "amount": 1.64}, {"id": 779, "name": "Realty income", "category": "REIT", "year": 2025, "month": 9, "amount": 1.66}, {"id": 780, "name": "Realty income", "category": "REIT", "year": 2025, "month": 10, "amount": 1.7}, {"id": 781, "name": "Realty income", "category": "REIT", "year": 2025, "month": 11, "amount": 1.72}, {"id": 782, "name": "Realty income", "category": "REIT", "year": 2025, "month": 12, "amount": 1.73}, {"id": 783, "name": "Federal Realty investment", "category": "REIT", "year": 2025, "month": 1, "amount": 2.5}, {"id": 784, "name": "Federal Realty investment", "category": "REIT", "year": 2025, "month": 4, "amount": 2.38}, {"id": 785, "name": "Federal Realty investment", "category": "REIT", "year": 2025, "month": 7, "amount": 2.41}, {"id": 786, "name": "Federal Realty investment", "category": "REIT", "year": 2025, "month": 10, "amount": 2.63}, {"id": 787, "name": "SL Green Realty Corporation", "category": "REIT", "year": 2025, "month": 1, "amount": 1.73}, {"id": 788, "name": "SL Green Realty Corporation", "category": "REIT", "year": 2025, "month": 2, "amount": 1.72}, {"id": 789, "name": "SL Green Realty Corporation", "category": "REIT", "year": 2025, "month": 3, "amount": 1.67}, {"id": 790, "name": "SL Green Realty Corporation", "category": "REIT", "year": 2025, "month": 4, "amount": 1.61}, {"id": 791, "name": "SL Green Realty Corporation", "category": "REIT", "year": 2025, "month": 5, "amount": 1.65}, {"id": 792, "name": "SL Green Realty Corporation", "category": "REIT", "year": 2025, "month": 6, "amount": 1.6}, {"id": 793, "name": "SL Green Realty Corporation", "category": "REIT", "year": 2025, "month": 7, "amount": 1.61}, {"id": 794, "name": "SL Green Realty Corporation", "category": "REIT", "year": 2025, "month": 8, "amount": 1.62}, {"id": 795, "name": "SL Green Realty Corporation", "category": "REIT", "year": 2025, "month": 9, "amount": 1.63}, {"id": 796, "name": "SL Green Realty Corporation", "category": "REIT", "year": 2025, "month": 10, "amount": 1.67}, {"id": 797, "name": "SL Green Realty Corporation", "category": "REIT", "year": 2025, "month": 11, "amount": 1.69}, {"id": 798, "name": "SL Green Realty Corporation", "category": "REIT", "year": 2025, "month": 12, "amount": 1.69}, {"id": 799, "name": "Boston Properties", "category": "REIT", "year": 2025, "month": 1, "amount": 3.09}, {"id": 800, "name": "Boston Properties", "category": "REIT", "year": 2025, "month": 4, "amount": 2.97}, {"id": 801, "name": "Boston Properties", "category": "REIT", "year": 2025, "month": 7, "amount": 3.08}, {"id": 802, "name": "Boston Properties", "category": "REIT", "year": 2025, "month": 10, "amount": 2.31}, {"id": 803, "name": "Agree Realty Corporation", "category": "REIT", "year": 2025, "month": 1, "amount": 0.6}, {"id": 804, "name": "Agree Realty Corporation", "category": "REIT", "year": 2025, "month": 2, "amount": 0.61}, {"id": 805, "name": "Agree Realty Corporation", "category": "REIT", "year": 2025, "month": 3, "amount": 0.6}, {"id": 806, "name": "Agree Realty Corporation", "category": "REIT", "year": 2025, "month": 4, "amount": 0.59}, {"id": 807, "name": "Agree Realty Corporation", "category": "REIT", "year": 2025, "month": 5, "amount": 0.62}, {"id": 808, "name": "Agree Realty Corporation", "category": "REIT", "year": 2025, "month": 6, "amount": 0.61}, {"id": 809, "name": "Agree Realty Corporation", "category": "REIT", "year": 2025, "month": 7, "amount": 0.62}, {"id": 810, "name": "Agree Realty Corporation", "category": "REIT", "year": 2025, "month": 8, "amount": 0.63}, {"id": 811, "name": "Agree Realty Corporation", "category": "REIT", "year": 2025, "month": 9, "amount": 0.64}, {"id": 812, "name": "Agree Realty Corporation", "category": "REIT", "year": 2025, "month": 10, "amount": 0.67}, {"id": 813, "name": "Agree Realty Corporation", "category": "REIT", "year": 2025, "month": 11, "amount": 0.71}, {"id": 814, "name": "Agree Realty Corporation", "category": "REIT", "year": 2025, "month": 12, "amount": 0.72}, {"id": 815, "name": "LTC Properties", "category": "REIT", "year": 2025, "month": 1, "amount": 1.62}, {"id": 816, "name": "LTC Properties", "category": "REIT", "year": 2025, "month": 2, "amount": 1.65}, {"id": 817, "name": "LTC Properties", "category": "REIT", "year": 2025, "month": 3, "amount": 1.6}, {"id": 818, "name": "LTC Properties", "category": "REIT", "year": 2025, "month": 4, "amount": 1.56}, {"id": 819, "name": "LTC Properties", "category": "REIT", "year": 2025, "month": 5, "amount": 1.56}, {"id": 820, "name": "LTC Properties", "category": "REIT", "year": 2025, "month": 6, "amount": 1.58}, {"id": 821, "name": "LTC Properties", "category": "REIT", "year": 2025, "month": 7, "amount": 1.65}, {"id": 822, "name": "LTC Properties", "category": "REIT", "year": 2025, "month": 8, "amount": 1.65}, {"id": 823, "name": "LTC Properties", "category": "REIT", "year": 2025, "month": 9, "amount": 1.68}, {"id": 824, "name": "LTC Properties", "category": "REIT", "year": 2025, "month": 10, "amount": 1.77}, {"id": 825, "name": "LTC Properties", "category": "REIT", "year": 2025, "month": 11, "amount": 1.79}, {"id": 826, "name": "LTC Properties", "category": "REIT", "year": 2025, "month": 12, "amount": 1.8}, {"id": 827, "name": "Digital Realty", "category": "REIT", "year": 2025, "month": 1, "amount": 1.75}, {"id": 828, "name": "Digital Realty", "category": "REIT", "year": 2025, "month": 3, "amount": 1.74}, {"id": 829, "name": "Digital Realty", "category": "REIT", "year": 2025, "month": 6, "amount": 1.66}, {"id": 830, "name": "Digital Realty", "category": "REIT", "year": 2025, "month": 9, "amount": 1.74}, {"id": 831, "name": "Orion office", "category": "REIT", "year": 2025, "month": 1, "amount": 0.06}, {"id": 832, "name": "Orion office", "category": "REIT", "year": 2025, "month": 4, "amount": 0.01}, {"id": 833, "name": "Orion office", "category": "REIT", "year": 2025, "month": 7, "amount": 0.01}, {"id": 834, "name": "Orion office", "category": "REIT", "year": 2025, "month": 10, "amount": 0.01}, {"id": 835, "name": "NNN inc", "category": "REIT", "year": 2025, "month": 2, "amount": 1.04}, {"id": 836, "name": "NNN inc", "category": "REIT", "year": 2025, "month": 5, "amount": 1.12}, {"id": 837, "name": "NNN inc", "category": "REIT", "year": 2025, "month": 8, "amount": 1.22}, {"id": 838, "name": "NNN inc", "category": "REIT", "year": 2025, "month": 11, "amount": 1.37}, {"id": 839, "name": "VICI Properties", "category": "REIT", "year": 2025, "month": 1, "amount": 1.1}, {"id": 840, "name": "VICI Properties", "category": "REIT", "year": 2025, "month": 4, "amount": 1.18}, {"id": 841, "name": "VICI Properties", "category": "REIT", "year": 2025, "month": 7, "amount": 1.2}, {"id": 842, "name": "VICI Properties", "category": "REIT", "year": 2025, "month": 10, "amount": 1.4}, {"id": 843, "name": "American Tower", "category": "REIT", "year": 2025, "month": 2, "amount": 0.59}, {"id": 844, "name": "American Tower", "category": "REIT", "year": 2025, "month": 4, "amount": 0.67}, {"id": 845, "name": "American Tower", "category": "REIT", "year": 2025, "month": 7, "amount": 0.68}, {"id": 846, "name": "American Tower", "category": "REIT", "year": 2025, "month": 10, "amount": 0.77}, {"id": 847, "name": "Daily Dividends", "category": "Actions", "year": 2025, "month": 1, "amount": 6.26}, {"id": 848, "name": "Daily Dividends", "category": "Actions", "year": 2025, "month": 2, "amount": 5.53}, {"id": 849, "name": "Daily Dividends", "category": "Actions", "year": 2025, "month": 3, "amount": 5.18}, {"id": 850, "name": "Daily Dividends", "category": "Actions", "year": 2025, "month": 4, "amount": 6.24}, {"id": 851, "name": "Daily Dividends", "category": "Actions", "year": 2025, "month": 5, "amount": 6.78}, {"id": 852, "name": "Daily Dividends", "category": "Actions", "year": 2025, "month": 6, "amount": 5.6}, {"id": 853, "name": "Daily Dividends", "category": "Actions", "year": 2025, "month": 7, "amount": 6.25}, {"id": 854, "name": "Daily Dividends", "category": "Actions", "year": 2025, "month": 8, "amount": 5.32}, {"id": 855, "name": "Daily Dividends", "category": "Actions", "year": 2025, "month": 9, "amount": 6.29}, {"id": 856, "name": "Daily Dividends", "category": "Actions", "year": 2025, "month": 10, "amount": 6.69}, {"id": 857, "name": "Daily Dividends", "category": "Actions", "year": 2025, "month": 11, "amount": 5.59}, {"id": 858, "name": "Daily Dividends", "category": "Actions", "year": 2025, "month": 12, "amount": 6.09}, {"id": 859, "name": "Intérêt journalier", "category": "Obligations/Intérêts", "year": 2025, "month": 1, "amount": 0.08}, {"id": 860, "name": "Intérêt journalier", "category": "Obligations/Intérêts", "year": 2025, "month": 2, "amount": 0.1}, {"id": 861, "name": "Intérêt journalier", "category": "Obligations/Intérêts", "year": 2025, "month": 3, "amount": 0.07}, {"id": 862, "name": "Intérêt journalier", "category": "Obligations/Intérêts", "year": 2025, "month": 4, "amount": 0.04}, {"id": 863, "name": "Intérêt journalier", "category": "Obligations/Intérêts", "year": 2025, "month": 5, "amount": 0.04}, {"id": 864, "name": "Intérêt journalier", "category": "Obligations/Intérêts", "year": 2025, "month": 6, "amount": 0.08}, {"id": 865, "name": "Intérêt journalier", "category": "Obligations/Intérêts", "year": 2025, "month": 7, "amount": 0.09}, {"id": 866, "name": "Intérêt journalier", "category": "Obligations/Intérêts", "year": 2025, "month": 8, "amount": 0.05}, {"id": 867, "name": "Intérêt journalier", "category": "Obligations/Intérêts", "year": 2025, "month": 9, "amount": 0.02}, {"id": 868, "name": "Intérêt journalier", "category": "Obligations/Intérêts", "year": 2025, "month": 10, "amount": 0.04}, {"id": 869, "name": "Intérêt journalier", "category": "Obligations/Intérêts", "year": 2025, "month": 11, "amount": 0.02}, {"id": 870, "name": "Intérêt journalier", "category": "Obligations/Intérêts", "year": 2025, "month": 12, "amount": 0.04}, {"id": 871, "name": "Bricks", "category": "Crowdfunding", "year": 2025, "month": 1, "amount": 10.83}, {"id": 872, "name": "Bricks", "category": "Crowdfunding", "year": 2025, "month": 2, "amount": 11.98}, {"id": 873, "name": "Bricks", "category": "Crowdfunding", "year": 2025, "month": 3, "amount": 11.89}, {"id": 874, "name": "Bricks", "category": "Crowdfunding", "year": 2025, "month": 4, "amount": 12.42}, {"id": 875, "name": "Bricks", "category": "Crowdfunding", "year": 2025, "month": 5, "amount": 12.69}, {"id": 876, "name": "Bricks", "category": "Crowdfunding", "year": 2025, "month": 6, "amount": 11.83}, {"id": 877, "name": "Bricks", "category": "Crowdfunding", "year": 2025, "month": 7, "amount": 12.19}, {"id": 878, "name": "Bricks", "category": "Crowdfunding", "year": 2025, "month": 8, "amount": 11.24}, {"id": 879, "name": "Bricks", "category": "Crowdfunding", "year": 2025, "month": 9, "amount": 12.83}, {"id": 880, "name": "Bricks", "category": "Crowdfunding", "year": 2025, "month": 10, "amount": 14.22}, {"id": 881, "name": "Bricks", "category": "Crowdfunding", "year": 2025, "month": 11, "amount": 12.48}, {"id": 882, "name": "Bricks", "category": "Crowdfunding", "year": 2025, "month": 12, "amount": 12.48}, {"id": 883, "name": "Tantiem", "category": "Crowdfunding", "year": 2025, "month": 1, "amount": 1.87}, {"id": 884, "name": "Tantiem", "category": "Crowdfunding", "year": 2025, "month": 2, "amount": 1.86}, {"id": 885, "name": "Tantiem", "category": "Crowdfunding", "year": 2025, "month": 3, "amount": 2.29}, {"id": 886, "name": "Tantiem", "category": "Crowdfunding", "year": 2025, "month": 4, "amount": 2.31}, {"id": 887, "name": "Tantiem", "category": "Crowdfunding", "year": 2025, "month": 5, "amount": 2.31}, {"id": 888, "name": "Tantiem", "category": "Crowdfunding", "year": 2025, "month": 6, "amount": 2.29}, {"id": 889, "name": "Tantiem", "category": "Crowdfunding", "year": 2025, "month": 7, "amount": 2.34}, {"id": 890, "name": "Tantiem", "category": "Crowdfunding", "year": 2025, "month": 8, "amount": 2.36}, {"id": 891, "name": "Tantiem", "category": "Crowdfunding", "year": 2025, "month": 9, "amount": 2.36}, {"id": 892, "name": "Tantiem", "category": "Crowdfunding", "year": 2025, "month": 10, "amount": 2.64}, {"id": 893, "name": "Tantiem", "category": "Crowdfunding", "year": 2025, "month": 11, "amount": 2.76}, {"id": 894, "name": "Tantiem", "category": "Crowdfunding", "year": 2025, "month": 12, "amount": 3.09}, {"id": 895, "name": "La première brique", "category": "Crowdfunding", "year": 2025, "month": 1, "amount": 5.66}, {"id": 896, "name": "La première brique", "category": "Crowdfunding", "year": 2025, "month": 2, "amount": 6.04}, {"id": 897, "name": "La première brique", "category": "Crowdfunding", "year": 2025, "month": 3, "amount": 12.43}, {"id": 898, "name": "La première brique", "category": "Crowdfunding", "year": 2025, "month": 4, "amount": 5.28}, {"id": 899, "name": "La première brique", "category": "Crowdfunding", "year": 2025, "month": 5, "amount": 15.3}, {"id": 900, "name": "La première brique", "category": "Crowdfunding", "year": 2025, "month": 6, "amount": 5.02}, {"id": 901, "name": "La première brique", "category": "Crowdfunding", "year": 2025, "month": 7, "amount": 9.26}, {"id": 902, "name": "La première brique", "category": "Crowdfunding", "year": 2025, "month": 8, "amount": 8.57}, {"id": 903, "name": "La première brique", "category": "Crowdfunding", "year": 2025, "month": 9, "amount": 4.99}, {"id": 904, "name": "La première brique", "category": "Crowdfunding", "year": 2025, "month": 10, "amount": 4.59}, {"id": 905, "name": "La première brique", "category": "Crowdfunding", "year": 2025, "month": 11, "amount": 5.96}, {"id": 906, "name": "La première brique", "category": "Crowdfunding", "year": 2025, "month": 12, "amount": 10.72}, {"id": 907, "name": "Intérêt Mintos", "category": "Obligations/Intérêts", "year": 2025, "month": 1, "amount": 23.54}, {"id": 908, "name": "Intérêt Mintos", "category": "Obligations/Intérêts", "year": 2025, "month": 2, "amount": 23.05}, {"id": 909, "name": "Intérêt Mintos", "category": "Obligations/Intérêts", "year": 2025, "month": 3, "amount": 22.81}, {"id": 910, "name": "Intérêt Mintos", "category": "Obligations/Intérêts", "year": 2025, "month": 4, "amount": 22.93}, {"id": 911, "name": "Intérêt Mintos", "category": "Obligations/Intérêts", "year": 2025, "month": 5, "amount": 25.66}, {"id": 912, "name": "Intérêt Mintos", "category": "Obligations/Intérêts", "year": 2025, "month": 6, "amount": 27.31}, {"id": 913, "name": "Intérêt Mintos", "category": "Obligations/Intérêts", "year": 2025, "month": 7, "amount": 26.43}, {"id": 914, "name": "Intérêt Mintos", "category": "Obligations/Intérêts", "year": 2025, "month": 8, "amount": 26.34}, {"id": 915, "name": "Intérêt Mintos", "category": "Obligations/Intérêts", "year": 2025, "month": 9, "amount": 28.88}, {"id": 916, "name": "Intérêt Mintos", "category": "Obligations/Intérêts", "year": 2025, "month": 10, "amount": 28.4}, {"id": 917, "name": "Intérêt Mintos", "category": "Obligations/Intérêts", "year": 2025, "month": 11, "amount": 28.94}, {"id": 918, "name": "Intérêt Mintos", "category": "Obligations/Intérêts", "year": 2025, "month": 12, "amount": 30.28}, {"id": 919, "name": "Intérêt Peerberry", "category": "Obligations/Intérêts", "year": 2025, "month": 1, "amount": 15.41}, {"id": 920, "name": "Intérêt Peerberry", "category": "Obligations/Intérêts", "year": 2025, "month": 2, "amount": 16.37}, {"id": 921, "name": "Intérêt Peerberry", "category": "Obligations/Intérêts", "year": 2025, "month": 3, "amount": 16.42}, {"id": 922, "name": "Intérêt Peerberry", "category": "Obligations/Intérêts", "year": 2025, "month": 4, "amount": 16.11}, {"id": 923, "name": "Intérêt Peerberry", "category": "Obligations/Intérêts", "year": 2025, "month": 5, "amount": 16.87}, {"id": 924, "name": "Intérêt Peerberry", "category": "Obligations/Intérêts", "year": 2025, "month": 6, "amount": 17.53}, {"id": 925, "name": "Intérêt Peerberry", "category": "Obligations/Intérêts", "year": 2025, "month": 7, "amount": 17.6}, {"id": 926, "name": "Intérêt Peerberry", "category": "Obligations/Intérêts", "year": 2025, "month": 8, "amount": 17.55}, {"id": 927, "name": "Intérêt Peerberry", "category": "Obligations/Intérêts", "year": 2025, "month": 9, "amount": 18.26}, {"id": 928, "name": "Intérêt Peerberry", "category": "Obligations/Intérêts", "year": 2025, "month": 10, "amount": 18.59}, {"id": 929, "name": "Intérêt Peerberry", "category": "Obligations/Intérêts", "year": 2025, "month": 11, "amount": 18.31}, {"id": 930, "name": "Intérêt Peerberry", "category": "Obligations/Intérêts", "year": 2025, "month": 12, "amount": 19.22}, {"id": 931, "name": "Obligation Mintos", "category": "Obligations/Intérêts", "year": 2025, "month": 2, "amount": 1.54}, {"id": 932, "name": "Obligation Mintos", "category": "Obligations/Intérêts", "year": 2025, "month": 5, "amount": 1.54}, {"id": 933, "name": "Obligation Mintos", "category": "Obligations/Intérêts", "year": 2025, "month": 8, "amount": 1.54}, {"id": 934, "name": "Obligation Mintos", "category": "Obligations/Intérêts", "year": 2025, "month": 10, "amount": 1.56}, {"id": 935, "name": "Obligation Mintos", "category": "Obligations/Intérêts", "year": 2025, "month": 12, "amount": 0.74}, {"id": 936, "name": "Vanguard global aggregate bond UCITS ETF", "category": "ETF", "year": 2026, "month": 1, "amount": 1.02}, {"id": 937, "name": "Vanguard global aggregate bond UCITS ETF", "category": "ETF", "year": 2026, "month": 3, "amount": 1.3}, {"id": 938, "name": "Vanguard global aggregate bond UCITS ETF", "category": "ETF", "year": 2026, "month": 4, "amount": 1.22}, {"id": 939, "name": "Vanguard FTSE Emerging Markets", "category": "ETF", "year": 2026, "month": 4, "amount": 1.54}, {"id": 940, "name": "Vanguard S&P 500 UCITS ETF", "category": "ETF", "year": 2026, "month": 4, "amount": 1.34}, {"id": 941, "name": "Vanguard FTSE Developed Asia Pacific ex japan UCIT ETF", "category": "ETF", "year": 2026, "month": 4, "amount": 3.27}, {"id": 942, "name": "iShares MSCI Europe ex-UK UCITS ETF EUR", "category": "ETF", "year": 2026, "month": 3, "amount": 0.31}, {"id": 943, "name": "HSBC MSCI China USD UCITS ETF Distributing", "category": "ETF", "year": 2026, "month": 2, "amount": 2.8}, {"id": 944, "name": "Vanguard FTSE All-World High Dividend Yield UCITS ETF", "category": "ETF", "year": 2026, "month": 4, "amount": 2.59}, {"id": 945, "name": "SPDR S&P Euro Dividend Aristocrats UCITS ETF (Dist)", "category": "ETF", "year": 2026, "month": 3, "amount": 2.42}, {"id": 946, "name": "Fidelity Global Quality Income UCITS ETF", "category": "ETF", "year": 2026, "month": 2, "amount": 1.3}, {"id": 947, "name": "Omega Healthcare Investors, Inc", "category": "REIT", "year": 2026, "month": 2, "amount": 6.21}, {"id": 948, "name": "Medical Properties Trust, Inc", "category": "REIT", "year": 2026, "month": 1, "amount": 3.08}, {"id": 949, "name": "Medical Properties Trust, Inc", "category": "REIT", "year": 2026, "month": 4, "amount": 3.37}, {"id": 950, "name": "Industrial Logistic Properties Trust", "category": "REIT", "year": 2026, "month": 2, "amount": 0.17}, {"id": 951, "name": "EPR Properties REIT", "category": "REIT", "year": 2026, "month": 1, "amount": 2.11}, {"id": 952, "name": "EPR Properties REIT", "category": "REIT", "year": 2026, "month": 2, "amount": 2.08}, {"id": 953, "name": "EPR Properties REIT", "category": "REIT", "year": 2026, "month": 3, "amount": 2.21}, {"id": 954, "name": "EPR Properties REIT", "category": "REIT", "year": 2026, "month": 4, "amount": 2.27}, {"id": 955, "name": "Realty income", "category": "REIT", "year": 2026, "month": 1, "amount": 1.77}, {"id": 956, "name": "Realty income", "category": "REIT", "year": 2026, "month": 2, "amount": 1.76}, {"id": 957, "name": "Realty income", "category": "REIT", "year": 2026, "month": 3, "amount": 1.84}, {"id": 958, "name": "Realty income", "category": "REIT", "year": 2026, "month": 4, "amount": 1.81}, {"id": 959, "name": "Federal Realty investment", "category": "REIT", "year": 2026, "month": 1, "amount": 2.77}, {"id": 960, "name": "Federal Realty investment", "category": "REIT", "year": 2026, "month": 4, "amount": 2.86}, {"id": 961, "name": "SL Green Realty Corporation", "category": "REIT", "year": 2026, "month": 4, "amount": 4.26}, {"id": 962, "name": "Boston Properties", "category": "REIT", "year": 2026, "month": 1, "amount": 2.34}, {"id": 963, "name": "Agree Realty Corporation", "category": "REIT", "year": 2026, "month": 1, "amount": 0.74}, {"id": 964, "name": "Agree Realty Corporation", "category": "REIT", "year": 2026, "month": 2, "amount": 0.75}, {"id": 965, "name": "Agree Realty Corporation", "category": "REIT", "year": 2026, "month": 3, "amount": 0.79}, {"id": 966, "name": "Agree Realty Corporation", "category": "REIT", "year": 2026, "month": 4, "amount": 0.79}, {"id": 967, "name": "LTC Properties", "category": "REIT", "year": 2026, "month": 1, "amount": 1.79}, {"id": 968, "name": "LTC Properties", "category": "REIT", "year": 2026, "month": 2, "amount": 1.83}, {"id": 969, "name": "LTC Properties", "category": "REIT", "year": 2026, "month": 3, "amount": 1.91}, {"id": 970, "name": "Digital Realty", "category": "REIT", "year": 2026, "month": 1, "amount": 1.8}, {"id": 971, "name": "Digital Realty", "category": "REIT", "year": 2026, "month": 3, "amount": 1.94}, {"id": 972, "name": "Orion office", "category": "REIT", "year": 2026, "month": 1, "amount": 0.01}, {"id": 973, "name": "Orion office", "category": "REIT", "year": 2026, "month": 4, "amount": 0.01}, {"id": 974, "name": "NNN inc", "category": "REIT", "year": 2026, "month": 2, "amount": 1.5}, {"id": 975, "name": "VICI Properties", "category": "REIT", "year": 2026, "month": 1, "amount": 1.5}, {"id": 976, "name": "VICI Properties", "category": "REIT", "year": 2026, "month": 4, "amount": 1.73}, {"id": 977, "name": "American Tower", "category": "REIT", "year": 2026, "month": 2, "amount": 0.86}, {"id": 978, "name": "Daily Dividends", "category": "Actions", "year": 2026, "month": 1, "amount": 6.44}, {"id": 979, "name": "Daily Dividends", "category": "Actions", "year": 2026, "month": 2, "amount": 7.31}, {"id": 980, "name": "Daily Dividends", "category": "Actions", "year": 2026, "month": 3, "amount": 6.38}, {"id": 981, "name": "Daily Dividends", "category": "Actions", "year": 2026, "month": 4, "amount": 5.45}, {"id": 982, "name": "Intérêt journalier", "category": "Obligations/Intérêts", "year": 2026, "month": 1, "amount": 0.03}, {"id": 983, "name": "Intérêt journalier", "category": "Obligations/Intérêts", "year": 2026, "month": 2, "amount": 0.03}, {"id": 984, "name": "Intérêt journalier", "category": "Obligations/Intérêts", "year": 2026, "month": 3, "amount": 0.06}, {"id": 985, "name": "Intérêt journalier", "category": "Obligations/Intérêts", "year": 2026, "month": 4, "amount": 0.07}, {"id": 986, "name": "Bricks", "category": "Crowdfunding", "year": 2026, "month": 1, "amount": 13.57}, {"id": 987, "name": "Bricks", "category": "Crowdfunding", "year": 2026, "month": 2, "amount": 12.67}, {"id": 988, "name": "Bricks", "category": "Crowdfunding", "year": 2026, "month": 3, "amount": 12.43}, {"id": 989, "name": "Bricks", "category": "Crowdfunding", "year": 2026, "month": 4, "amount": 12.73}, {"id": 990, "name": "Tantiem", "category": "Crowdfunding", "year": 2026, "month": 1, "amount": 3.06}, {"id": 991, "name": "Tantiem", "category": "Crowdfunding", "year": 2026, "month": 2, "amount": 3.06}, {"id": 992, "name": "Tantiem", "category": "Crowdfunding", "year": 2026, "month": 3, "amount": 3.06}, {"id": 993, "name": "Tantiem", "category": "Crowdfunding", "year": 2026, "month": 4, "amount": 3.85}, {"id": 994, "name": "La première brique", "category": "Crowdfunding", "year": 2026, "month": 1, "amount": 5.48}, {"id": 995, "name": "La première brique", "category": "Crowdfunding", "year": 2026, "month": 2, "amount": 11.77}, {"id": 996, "name": "La première brique", "category": "Crowdfunding", "year": 2026, "month": 3, "amount": 4.56}, {"id": 997, "name": "La première brique", "category": "Crowdfunding", "year": 2026, "month": 4, "amount": 15.29}, {"id": 998, "name": "Intérêt Mintos", "category": "Obligations/Intérêts", "year": 2026, "month": 1, "amount": 25.9}, {"id": 999, "name": "Intérêt Mintos", "category": "Obligations/Intérêts", "year": 2026, "month": 2, "amount": 27.55}, {"id": 1000, "name": "Intérêt Mintos", "category": "Obligations/Intérêts", "year": 2026, "month": 3, "amount": 26.5}, {"id": 1001, "name": "Intérêt Mintos", "category": "Obligations/Intérêts", "year": 2026, "month": 4, "amount": 23.06}, {"id": 1002, "name": "Intérêt Peerberry", "category": "Obligations/Intérêts", "year": 2026, "month": 1, "amount": 19.64}, {"id": 1003, "name": "Intérêt Peerberry", "category": "Obligations/Intérêts", "year": 2026, "month": 2, "amount": 20.01}, {"id": 1004, "name": "Intérêt Peerberry", "category": "Obligations/Intérêts", "year": 2026, "month": 3, "amount": 20.87}, {"id": 1005, "name": "Intérêt Peerberry", "category": "Obligations/Intérêts", "year": 2026, "month": 4, "amount": 16.72}, {"id": 1006, "name": "Obligation Mintos", "category": "Obligations/Intérêts", "year": 2026, "month": 2, "amount": 1.55}];
+
+// Groupes par défaut suggérés
+const DEFAULT_GROUPS = ["Daily Dividends", "Dividend ETF", "REIT USA", "Crowdfunding Immo", "Obligations", "Trading 212", "Mintos", "Peerberry", "Bricks", "Tantiem", "La première brique"];
+
+const CATEGORIES = ["ETF", "REIT", "Actions", "Crowdfunding", "Obligations/Intérêts", "A classer"];
+const CAT_COLORS = {"ETF":"#4ade80","REIT":"#60a5fa","Actions":"#fb923c","Crowdfunding":"#f472b6","Obligations/Intérêts":"#facc15","A classer":"#f87171"};
+const CAT_BG = {"ETF":"rgba(0,255,135,0.08)","REIT":"rgba(77,184,255,0.08)","Actions":"rgba(255,159,67,0.08)","Crowdfunding":"rgba(255,107,157,0.08)","Obligations/Intérêts":"rgba(255,211,42,0.08)","A classer":"rgba(248,113,113,0.08)"};
+const MONTHS_FR = ["Jan","Fév","Mar","Avr","Mai","Jun","Jul","Aoû","Sep","Oct","Nov","Déc"];
+const MONTHS_FULL = ["janvier","février","mars","avril","mai","juin","juillet","août","septembre","octobre","novembre","décembre"];
+const YEARS = [2020,2021,2022,2023,2024,2025,2026];
+const FREQ_EXCLUDE = ['mintos','peerberry','première brique','daily dividends','intérêt journalier','obligation mintos','monmouth'];
+
+function shouldExcludeFreq(name) {
+  return FREQ_EXCLUDE.some(x => name.toLowerCase().includes(x));
+}
+
+function getFrequencyData(dividends) {
+  const byAsset = {};
+  dividends.forEach(d => {
+    if (shouldExcludeFreq(d.name)) return;
+    if (!byAsset[d.name]) byAsset[d.name] = {name:d.name, category:d.category, payments:[]};
+    const key = d.year * 100 + d.month;
+    if (!byAsset[d.name].payments.includes(key)) byAsset[d.name].payments.push(key);
+  });
+
+  const now = new Date();
+  const results = [];
+
+  Object.values(byAsset).forEach(asset => {
+    const payments = asset.payments.sort((a,b)=>a-b);
+    if (payments.length < 2) return;
+
+    const gaps = [];
+    for (let i = 1; i < payments.length; i++) {
+      const prevY = Math.floor(payments[i-1]/100), prevM = payments[i-1]%100;
+      const currY = Math.floor(payments[i]/100), currM = payments[i]%100;
+      gaps.push((currY - prevY)*12 + (currM - prevM));
+    }
+    const avgGap = gaps.reduce((s,g)=>s+g,0) / gaps.length;
+    const freq = avgGap <= 1.5 ? 1 : avgGap <= 2.5 ? 2 : avgGap <= 4 ? 3 : avgGap <= 9 ? 6 : 12;
+    const freqLabel = freq === 1 ? "Mensuel" : freq === 2 ? "Bimestriel" : freq === 3 ? "Trimestriel" : freq === 6 ? "Semestriel" : "Annuel";
+
+    const lastKey = payments[payments.length-1];
+    const lastY = Math.floor(lastKey/100), lastM = lastKey%100;
+    let nextM = lastM + freq, nextY = lastY;
+    while (nextM > 12) { nextM -= 12; nextY++; }
+
+    const isPast = nextY < now.getFullYear() || (nextY === now.getFullYear() && nextM < now.getMonth()+1);
+    const isCurrent = nextY === now.getFullYear() && nextM === now.getMonth()+1;
+
+    // Get last amount
+    const lastPayments = dividends.filter(d => d.name === asset.name && d.year === lastY && d.month === lastM);
+    const lastAmount = lastPayments.reduce((s,d)=>s+d.amount,0);
+
+    results.push({
+      name: asset.name,
+      category: asset.category,
+      freqLabel,
+      lastY, lastM,
+      nextY, nextM,
+      isPast,
+      isCurrent,
+      lastAmount
+    });
+  });
+
+  return results.sort((a,b) => {
+    const aKey = a.nextY*100+a.nextM;
+    const bKey = b.nextY*100+b.nextM;
+    return aKey - bKey;
+  });
+}
+
+function fmt(n) { return new Intl.NumberFormat("fr-FR",{style:"currency",currency:"EUR",minimumFractionDigits:2,maximumFractionDigits:2}).format(n||0); }
+function fmt0(n) { return new Intl.NumberFormat("fr-FR",{style:"currency",currency:"EUR",maximumFractionDigits:0}).format(n||0); }
+
+function YearlyBars({data, onYearClick}) {
+  const totals = YEARS.map(y => data.filter(d=>d.year===y).reduce((s,d)=>s+d.amount,0));
+  const max = Math.max(...totals,1);
+  return (
+    <div style={{display:"flex",alignItems:"flex-end",gap:8,height:100}}>
+      {YEARS.map((y,i) => (
+        <div key={y} onClick={()=>onYearClick&&onYearClick(y)} style={{flex:1,display:"flex",flexDirection:"column",alignItems:"center",gap:3,cursor:onYearClick?"pointer":"default"}}>
+          <div style={{fontSize:7,color:"#00ff87"}}>{totals[i]>0?fmt0(totals[i]):""}</div>
+          <div style={{width:"100%",flex:1,display:"flex",alignItems:"flex-end"}}>
+            <div style={{width:"100%",height:Math.max(3,(totals[i]/max)*75),background:totals[i]>0?"linear-gradient(180deg,#4ade80cc,#4ade8033)":"#1e2330",borderRadius:"4px 4px 0 0"}} />
+          </div>
+          <div style={{fontSize:8,color:"#6b7a99"}}>{y}</div>
+        </div>
+      ))}
+    </div>
+  );
+}
+
+function MonthlyBars({data,year,onMonthClick}) {
+  const monthly = Array(12).fill(0);
+  data.filter(d=>d.year===year).forEach(d=>{monthly[d.month-1]+=d.amount;});
+  const max = Math.max(...monthly,1);
+  return (
+    <div style={{display:"flex",alignItems:"flex-end",gap:3,height:90}}>
+      {monthly.map((v,i) => (
+        <div key={i} onClick={()=>onMonthClick&&onMonthClick(year)} style={{flex:1,display:"flex",flexDirection:"column",alignItems:"center",gap:2,cursor:onMonthClick?"pointer":"default"}}>
+          {v>0 && <div style={{fontSize:6,color:"#00ff87",whiteSpace:"nowrap"}}>{fmt0(v)}</div>}
+          <div style={{width:"100%",flex:1,display:"flex",alignItems:"flex-end"}}>
+            <div style={{width:"100%",height:Math.max(3,(v/max)*65),background:v>0?"linear-gradient(180deg,#4ade80cc,#4ade8033)":"#1e2330",borderRadius:"3px 3px 0 0"}} />
+          </div>
+          <div style={{fontSize:7,color:"#6b7a99"}}>{MONTHS_FR[i][0]}</div>
+        </div>
+      ))}
+    </div>
+  );
+}
+
+function App() {
+  const [dividends, setDividends] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [importStatus, setImportStatus] = useState("");
+  const [saveStatus, setSaveStatus] = useState("");
+  const [view, setView] = useState("dashboard");
+  const [selectedYear, setSelectedYear] = useState(new Date().getFullYear());
+  const [filterCat, setFilterCat] = useState("Tous");
+  const [filterGroupe, setFilterGroupe] = useState("Tous");
+  const [monthlyYear, setMonthlyYear] = useState(new Date().getFullYear());
+  const [monthlyAsset, setMonthlyAsset] = useState("Tous");
+  const [showForm, setShowForm] = useState(false);
+  const [newGroupeMode, setNewGroupeMode] = useState(false);
+  const [showResetConfirm, setShowResetConfirm] = useState(false);
+  const [showT212Modal, setShowT212Modal] = useState(false);
+  const [t212ApiId, setT212ApiId] = useState(() => { try { return localStorage.getItem('t212ApiId') || ''; } catch { return ''; }});
+  const [t212ApiSecret, setT212ApiSecret] = useState(() => { try { return localStorage.getItem('t212ApiSecret') || ''; } catch { return ''; }});
+  const [t212Mapping, setT212Mapping] = useState(() => { try { return JSON.parse(localStorage.getItem('t212Mapping') || '{}'); } catch { return {}; }});
+  const [t212ImportStatus, setT212ImportStatus] = useState('');
+  const [t212Loading, setT212Loading] = useState(false);
+  const [t212Preview, setT212Preview] = useState(null); // liste des lignes à prévisualiser
+  const [t212PreviewSelected, setT212PreviewSelected] = useState({});
+  const [editingDiv, setEditingDiv] = useState(null);
+  const [mergeFrom, setMergeFrom] = useState("");
+  const [mergeTo, setMergeTo] = useState("");
+  const [mergeStatus, setMergeStatus] = useState("");
+  const [mergeLoading, setMergeLoading] = useState(false);
+  const [pinUnlocked, setPinUnlocked] = useState(false);
+  const [pinInput, setPinInput] = useState("");
+  const [pinError, setPinError] = useState(false);
+  const [showPin, setShowPin] = useState(false);
+  const [faceIdError, setFaceIdError] = useState("");
+  const [faceIdRegistered, setFaceIdRegistered] = useState(() => {
+    try { return !!sessionStorage.getItem("faceIdCredential"); } catch { return false; }
+  });
+  const [webAuthnSupported, setWebAuthnSupported] = useState(false);
+
+  useEffect(() => {
+    const supported = !!(window.PublicKeyCredential && navigator.credentials);
+    setWebAuthnSupported(supported);
+    const hasCredential = (() => { try { return !!sessionStorage.getItem("faceIdCredential"); } catch { return false; } })();
+    if (supported && hasCredential) {
+      setTimeout(() => authenticateWithFaceId(), 300);
+    }
+  }, []);
+
+  async function registerFaceId() {
+    try {
+      const challenge = new Uint8Array(32);
+      crypto.getRandomValues(challenge);
+      const credential = await navigator.credentials.create({
+        publicKey: {
+          challenge,
+          rp: { name: "Dividend Tracker", id: window.location.hostname },
+          user: { id: new Uint8Array(16), name: "user", displayName: "Julien" },
+          pubKeyCredParams: [{ type: "public-key", alg: -7 }],
+          authenticatorSelection: { authenticatorAttachment: "platform", userVerification: "required" },
+          timeout: 60000,
+        }
+      });
+      sessionStorage.setItem("faceIdCredential", JSON.stringify({
+        id: credential.id,
+        rawId: Array.from(new Uint8Array(credential.rawId)),
+      }));
+      setFaceIdRegistered(true);
+      setPinUnlocked(true);
+    } catch(e) {
+      setFaceIdError("Face ID non disponible. Utilise le PIN.");
+      setShowPin(true);
+    }
+  }
+
+  async function authenticateWithFaceId() {
+    try {
+      const stored = JSON.parse(sessionStorage.getItem("faceIdCredential"));
+      if (!stored) { setShowPin(true); return; }
+      const challenge = new Uint8Array(32);
+      crypto.getRandomValues(challenge);
+      await navigator.credentials.get({
+        publicKey: {
+          challenge,
+          rpId: window.location.hostname,
+          allowCredentials: [{ type: "public-key", id: new Uint8Array(stored.rawId) }],
+          userVerification: "required",
+          timeout: 60000,
+        }
+      });
+      setPinUnlocked(true);
+    } catch(e) {
+      setFaceIdError("Face ID échoué. Utilise ton PIN.");
+      setShowPin(true);
+    }
+  }
+
+  function handlePin(digit) {
+    const next = pinInput + digit;
+    setPinInput(next);
+    if (next.length === 4) {
+      if (next === "2513") {
+        setPinUnlocked(true);
+        setPinError(false);
+      } else {
+        setPinError(true);
+        setTimeout(() => { setPinInput(""); setPinError(false); }, 800);
+      }
+    }
+  }
+  const [form, setForm] = useState({name:"",category:"REIT",groupe:"",year:new Date().getFullYear(),month:new Date().getMonth()+1,day:new Date().getDate(),amount:"",note:""});
+  const [customName, setCustomName] = useState("");
+
+  useEffect(() => {
+    async function load() {
+      try {
+        let all = [];
+        let from = 0;
+        const pageSize = 1000;
+        while(true) {
+          const {data, error} = await db.from("dividends").select("*").order("year").order("month").range(from, from+pageSize-1);
+          if (error) throw error;
+          if (!data || data.length === 0) break;
+          all = [...all, ...data];
+          if (data.length < pageSize) break;
+          from += pageSize;
+        }
+        if (all.length > 0) {
+          setDividends(all);
+        } else {
+          await importData();
+          return;
+        }
+      } catch(e) {
+        console.error(e);
+        setDividends(INITIAL_DATA);
+      }
+      setLoading(false);
+    }
+    load();
+  }, []);
+
+  async function importData() {
+    setImportStatus("Importation en cours...");
+    try {
+      const batchSize = 50;
+      for (let i = 0; i < INITIAL_DATA.length; i += batchSize) {
+        const chunk = INITIAL_DATA.slice(i, i+batchSize).map(d => ({
+          name:d.name, category:d.category, year:d.year, month:d.month, day:d.day||1, amount:d.amount, note:d.note||""
+        }));
+        const {error} = await db.from("dividends").insert(chunk);
+        if (error) throw error;
+        setImportStatus(`Importation... ${Math.min(i+batchSize, INITIAL_DATA.length)}/${INITIAL_DATA.length}`);
+      }
+      let all = [];
+      let from = 0;
+      while(true) {
+        const {data} = await db.from("dividends").select("*").order("year").order("month").range(from, from+999);
+        if (!data || data.length === 0) break;
+        all = [...all, ...data];
+        if (data.length < 1000) break;
+        from += 1000;
+      }
+      setDividends(all);
+    } catch(e) {
+      console.error(e);
+      setDividends(INITIAL_DATA);
+    }
+    setImportStatus("");
+    setLoading(false);
+  }
+
+  async function confirmReset() {
+    setShowResetConfirm(false);
+    setLoading(true);
+    try {
+      await db.from("dividends").delete().gte("id", 0);
+    } catch(e) {}
+    await importData();
+  }
+
+
+  async function importFromT212() {
+    if (!t212ApiId.trim() || !t212ApiSecret.trim()) {
+      setT212ImportStatus("Remplis l'ID et la cle secrete");
+      return;
+    }
+    setT212Loading(true);
+    try { localStorage.setItem('t212ApiId', t212ApiId.trim()); localStorage.setItem('t212ApiSecret', t212ApiSecret.trim()); } catch {}
+    try {
+      const SUPABASE_URL = "https://yuiyctpvuaynxghjprok.supabase.co";
+      const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inl1aXljdHB2dWF5bnhnaGpwcm9rIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzY4ODE5NTYsImV4cCI6MjA5MjQ1Nzk1Nn0.odZc3BFC_nYnp_2H8lAcl8iIwgPxfLTzs0O8-l1s6u0";
+
+      async function fetchAllPages(type) {
+        let allItems = [];
+        let cursor = null;
+        let page = 0;
+        while (true) {
+          page++;
+          setT212ImportStatus(type === "dividends" ? "Dividendes page " + page + "..." : "Interets page " + page + "...");
+          const body = { apiId: t212ApiId.trim(), apiSecret: t212ApiSecret.trim(), limit: 50, type };
+          if (cursor) body.cursor = cursor;
+          let response, data;
+          let retries = 0;
+          while (retries < 5) {
+            response = await fetch(SUPABASE_URL + "/functions/v1/t212-dividends", {
+              method: "POST",
+              headers: { "Authorization": "Bearer " + SUPABASE_KEY, "apikey": SUPABASE_KEY, "Content-Type": "application/json" },
+              body: JSON.stringify(body)
+            });
+            data = await response.json();
+            if (response.status === 429 || (data && data.details && data.details.includes("TooMany"))) {
+              setT212ImportStatus("Limite atteinte, pause 12s...");
+              await new Promise(r => setTimeout(r, 12000));
+              retries++;
+            } else { break; }
+          }
+          if (!response.ok) throw new Error(data.details || data.error || "Erreur API");
+          const items = data.items || [];
+          allItems = [...allItems, ...items];
+          // Stop early if all items on this page already exist (we've reached old data)
+          if (type === "dividends" && items.length > 0) {
+            let allExist = true;
+            for (const item of items) {
+              const ref = item.reference || "";
+              if (ref) {
+                const { data: ex } = await db.from("dividends").select("id").eq("note", ref).limit(1);
+                if (!ex || ex.length === 0) { allExist = false; break; }
+              }
+            }
+            if (allExist) { break; }
+          }
+          if (data.nextPagePath) {
+            const urlParams = new URLSearchParams(data.nextPagePath.split("?")[1]);
+            cursor = urlParams.get("cursor");
+          } else { break; }
+          if (items.length < 50 || page >= 2) break;
+        }
+        return allItems;
+      }
+
+      // 1. Fetch dividends
+      const dividendItems = await fetchAllPages("dividends");
+
+      // 2. Fetch transactions (intérêts = DEPOSIT <= 2€, dédoublonnés par référence)
+      const transactionItems = await fetchAllPages("transactions");
+      const seenRefs = new Set();
+      const interestItems = transactionItems.filter(t => {
+        if (t.type !== "DEPOSIT" || parseFloat(t.amount) > 2) return false;
+        const ref = t.reference || (t.dateTime + t.amount);
+        if (seenRefs.has(ref)) return false;
+        seenRefs.add(ref);
+        return true;
+      });
+
+      setT212ImportStatus("Vérification des doublons...");
+      const previewItems = [];
+
+      // Préparer dividendes
+      for (const item of dividendItems) {
+        const paidDate = new Date(item.paidOn || item.date || item.time);
+        const year = paidDate.getFullYear();
+        const month = paidDate.getMonth() + 1;
+        const day = paidDate.getDate();
+        const amount = parseFloat(item.grossAmountInEuro || item.amountInEuro || item.amount || 0);
+        const ticker = item.ticker || "";
+        const ref = item.reference || "";
+        const mapping = t212Mapping[ticker];
+        const mappedName = mapping ? mapping.name : (item.instrument && item.instrument.name ? item.instrument.name : ticker || "Trading 212");
+        const mappedCategory = mapping ? mapping.category : "A classer";
+        const mappedGroupe = mapping ? (mapping.groupe || "") : "";
+        if (!amount || amount <= 0) continue;
+        const { data: existing } = await db.from("dividends").select("id").eq("note", ref || "T212").limit(1);
+        if (existing && existing.length > 0) continue;
+        previewItems.push({ id: ref || (ticker+year+month+day), name: mappedName, category: mappedCategory, groupe: mappedGroupe, ticker, year, month, day, amount, note: ref || "T212", type: "dividend" });
+      }
+
+      // Préparer intérêts - un par jour, doublon = même montant + même date
+      for (const item of interestItems) {
+        const date = new Date(item.dateTime);
+        const year = date.getFullYear();
+        const month = date.getMonth() + 1;
+        const day = date.getDate();
+        const amount = Math.round(parseFloat(item.amount || 0) * 100) / 100;
+        if (amount <= 0) continue;
+        const { data: existing } = await db.from("dividends")
+          .select("id")
+          .eq("name", "Intérêt journalier")
+          .eq("year", year)
+          .eq("month", month)
+          .eq("day", day)
+          .eq("amount", amount)
+          .limit(1);
+        if (existing && existing.length > 0) continue;
+        previewItems.push({ id: "interest-"+item.reference, name: "Intérêt journalier", category: "Obligations/Intérêts", groupe: "", ticker: "", year, month, day, amount, note: "T212", type: "interest" });
+      }
+
+      // Tri par date décroissante
+      previewItems.sort((a, b) => new Date(b.year, b.month-1, b.day) - new Date(a.year, a.month-1, a.day));
+
+      if (previewItems.length === 0) {
+        setT212ImportStatus("Aucune nouvelle ligne à importer.");
+        setT212Loading(false);
+        return;
+      }
+
+      // Sélectionner tout par défaut
+      const sel = {};
+      previewItems.forEach(item => { sel[item.id] = true; });
+      setT212Preview(previewItems);
+      setT212PreviewSelected(sel);
+      setT212ImportStatus("");
+      setT212Loading(false);
+      return;
+    } catch(e) { setT212ImportStatus("Erreur: " + e.message); }
+    setT212Loading(false);
+  }
+
+  async function confirmT212Import() {
+    const toImport = t212Preview.filter(item => t212PreviewSelected[item.id]);
+    if (toImport.length === 0) { setT212Preview(null); return; }
+    setT212Loading(true);
+    setT212ImportStatus("Import en cours...");
+    let imported = 0;
+    for (const item of toImport) {
+      const { id, type, ...data } = item;
+      const { data: inserted, error } = await db.from("dividends").insert([data]).select();
+      if (!error && inserted) { setDividends(prev => [...prev, inserted[0]]); imported++; }
+    }
+    setT212Preview(null);
+    setT212PreviewSelected({});
+    setT212ImportStatus(imported + " ligne(s) importée(s) ✓");
+    setT212Loading(false);
+  }
+
+  async function addDividend() {
+    const name = form.name === "__custom__" ? customName.trim() : form.name;
+    if (!name || !form.amount) return;
+    setSaveStatus("saving");
+    try {
+      if (editingDiv) {
+        // Update existing
+        const updates = {name, category:form.category, groupe:form.groupe||"", year:parseInt(form.year), month:parseInt(form.month), day:parseInt(form.day)||1, amount:parseFloat(form.amount), note:form.note||""};
+        const {error} = await db.from("dividends").update(updates).eq("id", editingDiv.id);
+        if (error) throw error;
+        setDividends(prev => prev.map(d => d.id === editingDiv.id ? {...d, ...updates} : d));
+
+        // Si c'est un dividende T212 avec ticker connu → propager nom/categorie/groupe à TOUS les dividendes du même ticker
+        if (editingDiv.note === "T212" && editingDiv.ticker) {
+          const ticker = editingDiv.ticker;
+          const newMapping = {...t212Mapping, [ticker]: {name, category: form.category, groupe: form.groupe||""}};
+          setT212Mapping(newMapping);
+          try { localStorage.setItem('t212Mapping', JSON.stringify(newMapping)); } catch {}
+
+          // Mettre à jour en base tous les dividendes avec ce ticker (sauf celui déjà mis à jour)
+          const bulkUpdate = {name, category: form.category, groupe: form.groupe||""};
+          await db.from("dividends").update(bulkUpdate).eq("ticker", ticker).neq("id", editingDiv.id);
+          // Mettre à jour le state local aussi
+          setDividends(prev => prev.map(d => d.ticker === ticker && d.id !== editingDiv.id ? {...d, ...bulkUpdate} : d));
+        }
+      } else {
+        // Insert new
+        const newD = {name, category:form.category, groupe:form.groupe||"", year:parseInt(form.year), month:parseInt(form.month), day:parseInt(form.day)||1, amount:parseFloat(form.amount), note:form.note||""};
+        const {data, error} = await db.from("dividends").insert([newD]).select();
+        if (error) throw error;
+        setDividends(prev => [...prev, data[0]]);
+      }
+      setSaveStatus("saved");
+      setTimeout(()=>setSaveStatus(""), 2000);
+    } catch(e) {
+      setSaveStatus("error");
+      setTimeout(()=>setSaveStatus(""), 3000);
+    }
+    setEditingDiv(null);
+    setShowForm(false);
+    setNewGroupeMode(false);
+  }
+
+  function openEdit(d) {
+    setEditingDiv(d);
+    setForm({name:d.name, category:d.category, groupe:d.groupe||"", year:d.year, month:d.month, day:d.day||1, amount:d.amount, note:d.note||""});
+    setShowForm(true);
+  }
+
+  async function deleteDiv(id) {
+    await db.from("dividends").delete().eq("id", id);
+    setDividends(prev => prev.filter(d => d.id !== id));
+  }
+
+  const totalAll = useMemo(() => dividends.reduce((s,d)=>s+d.amount,0), [dividends]);
+  const yearDivs = useMemo(() => dividends.filter(d=>d.year===selectedYear), [dividends,selectedYear]);
+  const totalYear = yearDivs.reduce((s,d)=>s+d.amount,0);
+  const byCatYear = useMemo(() => {
+    const m={};
+    yearDivs.forEach(d=>{if(!m[d.category])m[d.category]=0;m[d.category]+=d.amount;});
+    return m;
+  }, [yearDivs]);
+  const byAssetYear = useMemo(() => {
+    const m={};
+    yearDivs.forEach(d=>{if(!m[d.name])m[d.name]={name:d.name,category:d.category,total:0};m[d.name].total+=d.amount;});
+    return Object.values(m).sort((a,b)=>b.total-a.total);
+  }, [yearDivs]);
+  const groupeNames = useMemo(() => ["Tous",...Array.from(new Set(dividends.map(d=>d.groupe).filter(Boolean))).sort()], [dividends]);
+
+  const filteredHist = useMemo(() => {
+    return [...dividends].filter(d=>{
+      const catOk = filterCat==="Tous" || d.category===filterCat;
+      const grpOk = filterGroupe==="Tous" || (d.groupe||"")=== filterGroupe;
+      return catOk && grpOk;
+    }).sort((a,b)=>{
+      if (b.year !== a.year) return b.year - a.year;
+      if (b.month !== a.month) return b.month - a.month;
+      return (b.day||1) - (a.day||1);
+    });
+  }, [dividends, filterCat, filterGroupe]);
+  const assetNames = useMemo(() => ["Tous",...Array.from(new Set(dividends.map(d=>d.name))).sort()], [dividends]);
+
+  // Monthly per asset data
+  const monthlyData = useMemo(() => {
+    const src = monthlyAsset === "Tous" ? dividends : dividends.filter(d=>d.name===monthlyAsset);
+    const filtered = src.filter(d=>d.year===monthlyYear);
+    const byMonth = Array(12).fill(0);
+    filtered.forEach(d=>{byMonth[d.month-1]+=d.amount;});
+    return byMonth;
+  }, [dividends, monthlyYear, monthlyAsset]);
+
+  const monthlyAssetBreakdown = useMemo(() => {
+    const src = dividends.filter(d=>d.year===monthlyYear);
+    const result = {};
+    src.forEach(d => {
+      const isDaily = d.name === "Daily Dividends" || (d.groupe||"") === "Daily Dividends";
+      const key = isDaily ? "__DAILY__" : d.name;
+      if (!result[key]) result[key] = {name: isDaily ? "Daily Dividends" : d.name, category: d.category, groupe: isDaily ? "Daily Dividends" : (d.groupe||""), months:Array(12).fill(0), total:0, isGroup: isDaily};
+      result[key].months[d.month-1] += d.amount;
+      result[key].total += d.amount;
+    });
+    return Object.values(result).sort((a,b)=>b.total-a.total);
+  }, [dividends, monthlyYear]);
+
+  async function mergeAssetNames(fromName, toName) {
+    setMergeLoading(true);
+    setMergeStatus("");
+    const affected = dividends.filter(d => d.name === fromName);
+    if (affected.length === 0) { setMergeStatus("Aucun enregistrement trouvé."); setMergeLoading(false); return; }
+    const {error} = await db.from("dividends").update({name: toName}).eq("name", fromName);
+    if (error) { setMergeStatus("Erreur : " + error.message); setMergeLoading(false); return; }
+    setDividends(prev => prev.map(d => d.name === fromName ? {...d, name: toName} : d));
+    setMergeStatus(affected.length + " enregistrement(s) renommés ✓");
+    setMergeFrom("");
+    setMergeLoading(false);
+  }
+
+  const navItems = [
+    {key:"dashboard",label:"Global"},
+    {key:"annee",label:`${selectedYear}`},
+    {key:"mensuel",label:"Mensuel"},
+    {key:"historique",label:"Historique"},
+    {key:"prochain",label:"Prochain"},
+    {key:"outils",label:"Outils"},
+  ];
+
+  if (!pinUnlocked) return (
+    <div style={{minHeight:"100vh",background:"#080b12",display:"flex",alignItems:"center",justifyContent:"center",padding:20}}>
+      <div style={{textAlign:"center",width:"100%",maxWidth:300}}>
+        <div style={{fontSize:28,color:"#ffd32a",marginBottom:8}}>◈</div>
+        <div style={{fontSize:14,fontWeight:700,letterSpacing:-0.5,marginBottom:4}}>Dividend Tracker</div>
+        <div style={{fontSize:10,color:"#6b7a99",letterSpacing:2,marginBottom:40}}>ENTREZ VOTRE CODE PIN</div>
+        <div style={{display:"flex",justifyContent:"center",gap:16,marginBottom:40}}>
+          {[0,1,2,3].map(i => (
+            <div key={i} style={{width:14,height:14,borderRadius:"50%",background:pinInput.length>i?(pinError?"#f87171":"#facc15"):"#1e2330",transition:"background 0.15s"}} />
+          ))}
+        </div>
+        <div style={{display:"grid",gridTemplateColumns:"1fr 1fr 1fr",gap:12}}>
+          {[1,2,3,4,5,6,7,8,9].map(n => (
+            <button key={n} onClick={()=>handlePin(String(n))} style={{padding:"18px 0",borderRadius:14,border:"1px solid rgba(255,255,255,0.07)",background:"#0d1220",color:"#f0f4ff",fontSize:20,fontWeight:600,cursor:"pointer"}}>
+              {n}
+            </button>
+          ))}
+          <div />
+          <button onClick={()=>handlePin("0")} style={{padding:"18px 0",borderRadius:14,border:"1px solid rgba(255,255,255,0.07)",background:"#0d1220",color:"#f0f4ff",fontSize:20,fontWeight:600,cursor:"pointer"}}>0</button>
+          <button onClick={()=>setPinInput(p=>p.slice(0,-1))} style={{padding:"18px 0",borderRadius:14,border:"1px solid rgba(255,255,255,0.07)",background:"#0d1220",color:"#c8d4f0",fontSize:16,cursor:"pointer"}}>⌫</button>
+        </div>
+        {pinError && <div style={{color:"#f87171",fontSize:11,marginTop:20,letterSpacing:1}}>CODE INCORRECT</div>}
+      </div>
+    </div>
+  );
+
+  if (loading) return (
+    <div style={{minHeight:"100vh",background:"#080b12",display:"flex",alignItems:"center",justifyContent:"center"}}>
+      <div style={{textAlign:"center"}}>
+        <div style={{fontSize:28,color:"#00ff87",marginBottom:12}}>◈</div>
+        <div style={{color:"#00ff87",fontSize:10,letterSpacing:2}}>{importStatus || "CHARGEMENT..."}</div>
+      </div>
+    </div>
+  );
+
+  return (
+    <div style={{minHeight:"100vh",background:"#080b12",color:"#f0f4ff",maxWidth:480,margin:"0 auto",paddingBottom:80}}>
+
+      {/* Header */}
+      <div style={{padding:"20px 20px 14px",borderBottom:"1px solid rgba(255,255,255,0.07)",background:"linear-gradient(180deg,#0d1525,#080b12)"}}>
+        <div style={{display:"flex",justifyContent:"space-between",alignItems:"center"}}>
+          <div>
+            <div style={{fontSize:10,color:"#00ff87",letterSpacing:3,textTransform:"uppercase",marginBottom:3}}>◈ Dividend Tracker</div>
+            <div style={{fontSize:20,fontWeight:700,letterSpacing:-1}}>Mes Dividendes</div>
+          </div>
+          <div style={{display:"flex",alignItems:"center",gap:8}}>
+            {saveStatus==="saving" && <div style={{fontSize:8,color:"#6b7a99"}}>SYNC...</div>}
+            {saveStatus==="saved" && <div style={{fontSize:8,color:"#00ff87"}}>✓ OK</div>}
+            {saveStatus==="error" && <div style={{fontSize:8,color:"#f87171"}}>ERREUR</div>}
+
+            <button onClick={()=>setShowT212Modal(true)} style={{background:"rgba(96,165,250,0.15)",color:"#60a5fa",border:"1px solid rgba(96,165,250,0.3)",borderRadius:8,padding:"8px 10px",fontSize:10,fontWeight:700,cursor:"pointer"}}>T212</button>
+            <button onClick={()=>setShowForm(true)} style={{background:"linear-gradient(135deg,#ffd32a,#ffaa00)",color:"#0a0c10",border:"none",borderRadius:8,padding:"8px 14px",fontSize:18,fontWeight:700,cursor:"pointer"}}>+</button>
+          </div>
+        </div>
+      </div>
+
+      {/* Nav */}
+      <div style={{display:"flex",borderBottom:"1px solid rgba(255,255,255,0.07)"}}>
+        {navItems.map(v => (
+          <button key={v.key} onClick={()=>setView(v.key)} style={{flex:1,padding:"11px 0",background:"none",border:"none",borderBottom:view===v.key?"2px solid #4ade80":"2px solid transparent",color:view===v.key?"#4ade80":"#999",fontSize:8,letterSpacing:1,textTransform:"uppercase",cursor:"pointer"}}>{v.label}</button>
+        ))}
+      </div>
+
+      {/* DASHBOARD */}
+      {view==="dashboard" && (
+        <div style={{padding:"16px 20px 0"}}>
+          {(() => {
+            // Calculate best month
+            const monthTotals = {};
+            dividends.forEach(d => {
+              const key = `${d.year}-${d.month}`;
+              if (!monthTotals[key]) monthTotals[key] = {year:d.year, month:d.month, total:0};
+              monthTotals[key].total += d.amount;
+            });
+            const bestMonth = Object.values(monthTotals).sort((a,b)=>b.total-a.total)[0];
+            const now2 = new Date();
+            const curY = now2.getFullYear(), curM = now2.getMonth()+1;
+            const thisMo = dividends.filter(d=>d.year===curY&&d.month===curM).reduce((s,d)=>s+d.amount,0);
+            const sameMonthLY = dividends.filter(d=>d.year===curY-1&&d.month===curM).reduce((s,d)=>s+d.amount,0);
+            const vsLY = sameMonthLY > 0 ? ((thisMo-sameMonthLY)/sameMonthLY*100) : null;
+            const monthsWithData = Array.from(new Set(dividends.filter(d=>d.year===curY&&d.month<curM).map(d=>d.month))).length;
+            const avgMonthly = monthsWithData > 0 ? dividends.filter(d=>d.year===curY&&d.month<curM).reduce((s,d)=>s+d.amount,0)/monthsWithData : 0;
+            const sparkMonths = [];
+            for(let i=5;i>=0;i--){let m=curM-i,y=curY;if(m<=0){m+=12;y--;}sparkMonths.push({y,m,total:dividends.filter(d=>d.year===y&&d.month===m).reduce((s,d)=>s+d.amount,0)});}
+            const sparkMax = Math.max(...sparkMonths.map(s=>s.total),1);
+            return (
+              <div>
+                <div style={{background:"linear-gradient(135deg,#0a1628,#0d1f3c)",border:"1px solid rgba(0,255,135,0.2)",borderRadius:20,padding:20,marginBottom:14,position:"relative",overflow:"hidden"}}>
+                  <div style={{position:"absolute",top:0,right:0,width:120,height:120,background:"radial-gradient(circle,rgba(0,255,135,0.06) 0%,transparent 70%)",pointerEvents:"none"}} />
+                  <div style={{fontSize:9,color:"#00ff87",letterSpacing:3,marginBottom:4}}>◈ {MONTHS_FULL[curM-1].toUpperCase()} {curY}</div>
+                  <div style={{display:"flex",alignItems:"flex-end",gap:10,marginBottom:16}}>
+                    <div style={{fontSize:38,fontWeight:700,letterSpacing:-2,color:"#fff",lineHeight:1}}>{fmt(thisMo)}</div>
+                    {vsLY !== null && (
+                      <div style={{marginBottom:6}}>
+                        <div style={{fontSize:11,fontWeight:700,color:vsLY>=0?"#4ade80":"#f87171",background:vsLY>=0?"rgba(74,222,128,0.12)":"rgba(248,113,113,0.12)",borderRadius:6,padding:"2px 7px"}}>
+                          {vsLY>=0?"+":""}{vsLY.toFixed(0)}% vs {curY-1}
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                  <div style={{display:"flex",alignItems:"flex-end",gap:4,height:70,marginBottom:12}}>
+                    {sparkMonths.map((s,i) => {
+                      const isLast = i===5;
+                      const h = Math.max(18,(s.total/sparkMax)*60);
+                      return (
+                        <div key={i} style={{flex:1,display:"flex",flexDirection:"column",alignItems:"center",gap:2}}>
+                          <div style={{width:"100%",height:h,background:isLast?"#00ff87":s.total>0?"rgba(0,255,135,0.3)":"rgba(255,255,255,0.05)",borderRadius:"3px 3px 0 0",display:"flex",flexDirection:"column",justifyContent:"flex-start",alignItems:"center",paddingTop:3,overflow:"hidden"}}>
+                            {s.total>0 && <div style={{fontSize:6,color:isLast?"#003d20":"rgba(0,255,135,0.9)",fontWeight:700,whiteSpace:"nowrap"}}>{fmt0(s.total)}</div>}
+                          </div>
+                          <div style={{fontSize:7,color:isLast?"#00ff87":"#6b7a99"}}>{MONTHS_FR[s.m-1]}</div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                  <div style={{display:"flex",borderTop:"1px solid rgba(255,255,255,0.07)",paddingTop:12}}>
+                    <div style={{flex:1}}>
+                      <div style={{fontSize:8,color:"#6b7a99",letterSpacing:1,marginBottom:3}}>MOY. MENSUELLE {curY}</div>
+                      <div style={{fontSize:14,fontWeight:700,color:"#ffd32a"}}>{fmt(avgMonthly)}</div>
+                    </div>
+                    <div style={{width:1,background:"rgba(255,255,255,0.07)",margin:"0 14px"}} />
+                    <div style={{flex:1}}>
+                      <div style={{fontSize:8,color:"#6b7a99",letterSpacing:1,marginBottom:3}}>MEME MOIS {curY-1}</div>
+                      <div style={{fontSize:14,fontWeight:700,color:"#c8d4f0"}}>{fmt(sameMonthLY)}</div>
+                    </div>
+                  </div>
+                </div>
+                <div style={{background:"linear-gradient(135deg,#0f1117,#141824)",border:"1px solid rgba(255,255,255,0.07)",borderRadius:20,padding:20,marginBottom:14}}>
+                  <div style={{fontSize:9,color:"#6b7a99",letterSpacing:2,marginBottom:6}}>TOTAL DEPUIS 2020</div>
+                  <div style={{fontSize:34,fontWeight:700,letterSpacing:-1,color:"#ffd32a"}}>{fmt(totalAll)}</div>
+                  {bestMonth && (
+                    <div style={{display:"flex",alignItems:"center",gap:8,marginTop:10}}>
+                      <div style={{fontSize:9,color:"#6b7a99",letterSpacing:1}}>🏆 RECORD</div>
+                      <div style={{fontSize:13,color:"#00ff87",fontWeight:600}}>{fmt(bestMonth.total)}</div>
+                      <div style={{fontSize:9,color:"#6b7a99"}}>{MONTHS_FR[bestMonth.month-1]} {bestMonth.year}</div>
+                    </div>
+                  )}
+                </div>
+              </div>
+            );
+          })()}
+          <div style={{background:"#0d1220",border:"1px solid rgba(255,255,255,0.07)",borderRadius:16,padding:16,marginBottom:14}}>
+            <div style={{fontSize:9,color:"#6b7a99",letterSpacing:2,marginBottom:12}}>ÉVOLUTION ANNUELLE</div>
+            <YearlyBars data={dividends} onYearClick={(y)=>{setSelectedYear(y);setView("annee");}} />
+            <div style={{marginTop:16,borderTop:"1px solid rgba(255,255,255,0.07)",paddingTop:14}}>
+              {YEARS.slice(1).map((y,i) => {
+                const prev = dividends.filter(d=>d.year===YEARS[i]).reduce((s,d)=>s+d.amount,0);
+                const curr = dividends.filter(d=>d.year===y).reduce((s,d)=>s+d.amount,0);
+                const now = new Date();
+                // For current year, annualize based on months elapsed
+                const monthsElapsed = y === now.getFullYear() ? now.getMonth()+1 : 12;
+                const currAnnualized = y === now.getFullYear() ? (curr/monthsElapsed)*12 : curr;
+                const growth = prev > 0 ? ((currAnnualized - prev) / prev * 100) : 0;
+                const isPositive = growth >= 0;
+                return (
+                  <div key={y} style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:10}}>
+                    <div style={{display:"flex",alignItems:"center",gap:8}}>
+                      <div style={{fontSize:10,color:"#6b7a99"}}>{YEARS[i]}</div>
+                      <div style={{fontSize:8,color:"#333"}}>→</div>
+                      <div style={{fontSize:10,fontWeight:600}}>{y}{y===now.getFullYear()?" *":""}</div>
+                    </div>
+                    <div style={{display:"flex",alignItems:"center",gap:10}}>
+                      <div style={{fontSize:10,color:"#c8d4f0"}}>{new Intl.NumberFormat("fr-FR",{style:"currency",currency:"EUR",maximumFractionDigits:0}).format(curr)}</div>
+                      <div style={{fontSize:12,fontWeight:700,color:isPositive?"#4ade80":"#f87171",minWidth:60,textAlign:"right"}}>
+                        {isPositive?"+":""}{growth.toFixed(0)}%
+                      </div>
+                    </div>
+                  </div>
+                );
+              })}
+              <div style={{fontSize:8,color:"#333",marginTop:4}}>* annualisé sur {new Date().getMonth()+1} mois</div>
+            </div>
+          </div>
+          {/* BLOC PAR GROUPE */}
+          {(()=>{
+            const groupes = Array.from(new Set(dividends.map(d=>d.groupe).filter(Boolean))).sort();
+            if (groupes.length === 0) return null;
+            const groupTotals = groupes.map(g=>({
+              groupe:g,
+              total:dividends.filter(d=>d.groupe===g).reduce((s,d)=>s+d.amount,0)
+            })).sort((a,b)=>b.total-a.total);
+            return (
+              <div style={{background:"#0d1220",border:"1px solid rgba(255,211,42,0.15)",borderRadius:16,padding:16,marginBottom:14}}>
+                <div style={{fontSize:9,color:"#ffd32a",letterSpacing:2,marginBottom:12}}>PAR GROUPE (TOTAL)</div>
+                {groupTotals.map(({groupe,total})=>{
+                  const pct = ((total/totalAll)*100).toFixed(0);
+                  return (
+                    <div key={groupe} style={{marginBottom:12}}>
+                      <div style={{display:"flex",justifyContent:"space-between",marginBottom:4}}>
+                        <div style={{display:"flex",alignItems:"center",gap:6}}>
+                          <div style={{fontSize:10,color:"#ffd32a",fontWeight:600}}>🏷 {groupe}</div>
+                        </div>
+                        <div style={{textAlign:"right"}}>
+                          <span style={{fontSize:12,fontWeight:600,color:"#ffd32a"}}>{fmt(total)}</span>
+                          <span style={{fontSize:9,color:"#6b7a99",marginLeft:6}}>{pct}%</span>
+                        </div>
+                      </div>
+                      <div style={{height:4,background:"rgba(255,255,255,0.05)",borderRadius:2}}>
+                        <div style={{height:"100%",width:`${pct}%`,background:"linear-gradient(90deg,#ffd32a,#ffaa00)",borderRadius:2}} />
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            );
+          })()}
+          <div style={{background:"#0d1220",border:"1px solid rgba(255,255,255,0.07)",borderRadius:16,padding:16,marginBottom:14}}>
+            <div style={{fontSize:9,color:"#6b7a99",letterSpacing:2,marginBottom:12}}>PAR CATÉGORIE (TOTAL)</div>
+            {CATEGORIES.map(cat => {
+              const total = dividends.filter(d=>d.category===cat).reduce((s,d)=>s+d.amount,0);
+              if (!total) return null;
+              const pct = ((total/totalAll)*100).toFixed(0);
+              return (
+                <div key={cat} style={{marginBottom:12}}>
+                  <div style={{display:"flex",justifyContent:"space-between",marginBottom:4}}>
+                    <div style={{display:"flex",alignItems:"center",gap:6}}>
+                      <div style={{width:8,height:8,borderRadius:2,background:CAT_COLORS[cat]}} />
+                      <div style={{fontSize:10}}>{cat}</div>
+                    </div>
+                    <div style={{textAlign:"right"}}>
+                      <span style={{fontSize:12,fontWeight:600,color:CAT_COLORS[cat]}}>{fmt(total)}</span>
+                      <span style={{fontSize:9,color:"#6b7a99",marginLeft:6}}>{pct}%</span>
+                    </div>
+                  </div>
+                  <div style={{height:4,background:"rgba(255,255,255,0.05)",borderRadius:2}}>
+                    <div style={{height:"100%",width:`${pct}%`,background:CAT_COLORS[cat],borderRadius:2}} />
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+          {CATEGORIES.map(cat => {
+            const catDivs = dividends.filter(d=>d.category===cat);
+            if (!catDivs.length) return null;
+            const byA = {};
+            catDivs.forEach(d=>{if(!byA[d.name])byA[d.name]=0;byA[d.name]+=d.amount;});
+            const sorted = Object.entries(byA).sort((a,b)=>b[1]-a[1]);
+            const catTotal = sorted.reduce((s,[,v])=>s+v,0);
+            return (
+              <div key={cat} style={{background:"#0d1220",border:`1px solid ${CAT_COLORS[cat]}33`,borderRadius:16,padding:16,marginBottom:14}}>
+                <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:14}}>
+                  <div style={{fontSize:9,color:CAT_COLORS[cat],letterSpacing:2,textTransform:"uppercase"}}>{cat}</div>
+                  <div style={{fontSize:13,fontWeight:700,color:CAT_COLORS[cat]}}>{fmt(catTotal)}</div>
+                </div>
+                {sorted.map(([name,total]) => {
+                  const pct = ((total/catTotal)*100).toFixed(0);
+                  return (
+                    <div key={name} style={{marginBottom:10}}>
+                      <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:3}}>
+                        <div style={{fontSize:10,color:"#e8eeff",flex:1,overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap",paddingRight:8}}>{name}</div>
+                        <div style={{flexShrink:0,textAlign:"right"}}>
+                          <span style={{fontSize:11,fontWeight:600}}>{fmt(total)}</span>
+                          <span style={{fontSize:9,color:"#6b7a99",marginLeft:4}}>{pct}%</span>
+                        </div>
+                      </div>
+                      <div style={{height:3,background:"rgba(255,255,255,0.05)",borderRadius:2}}>
+                        <div style={{height:"100%",width:`${pct}%`,background:CAT_COLORS[cat],borderRadius:2,opacity:0.7}} />
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            );
+          })}
+        </div>
+      )}
+
+      {/* Total Trading 212 */}
+      {view==="dashboard" && (()=>{
+        const t212cats = ["ETF", "REIT", "Actions"];
+        const total212 = dividends.filter(d=>t212cats.includes(d.category)).reduce((s,d)=>s+d.amount,0);
+        const total212year = dividends.filter(d=>t212cats.includes(d.category)&&d.year===new Date().getFullYear()).reduce((s,d)=>s+d.amount,0);
+        return (
+          <div style={{padding:"0 20px 16px"}}>
+            <div style={{background:"linear-gradient(135deg,#0d1525,#0d1220)",border:"1px solid rgba(77,184,255,0.2)",borderRadius:14,padding:16}}>
+              <div style={{fontSize:10,color:"#60a5fa",letterSpacing:2,marginBottom:12,fontWeight:700}}>📊 TOTAL TRADING 212</div>
+              <div style={{display:"flex",gap:20}}>
+                <div>
+                  <div style={{fontSize:8,color:"#6b7a99",marginBottom:3,letterSpacing:1}}>DEPUIS 2020</div>
+                  <div style={{fontSize:20,fontWeight:700,color:"#60a5fa"}}>{fmt(total212)}</div>
+                </div>
+                <div style={{borderLeft:"1px solid rgba(255,255,255,0.07)",paddingLeft:20}}>
+                  <div style={{fontSize:8,color:"#6b7a99",marginBottom:3,letterSpacing:1}}>CETTE ANNÉE</div>
+                  <div style={{fontSize:20,fontWeight:700,color:"#60a5fa"}}>{fmt(total212year)}</div>
+                </div>
+              </div>
+              <div style={{display:"flex",gap:12,marginTop:10,flexWrap:"wrap"}}>
+                {t212cats.map(cat => {
+                  const t = dividends.filter(d=>d.category===cat).reduce((s,d)=>s+d.amount,0);
+                  return t > 0 ? (
+                    <div key={cat} style={{fontSize:9,color:CAT_COLORS[cat]}}>
+                      {cat}: {fmt(t)}
+                    </div>
+                  ) : null;
+                })}
+              </div>
+            </div>
+          </div>
+        );
+      })()}
+
+      {/* ANNÉE */}
+      {view==="annee" && (
+        <div style={{padding:"16px 20px 0"}}>
+          <div style={{display:"flex",gap:6,overflowX:"auto",paddingBottom:10,marginBottom:10}}>
+            {YEARS.map(y => (
+              <button key={y} onClick={()=>setSelectedYear(y)} style={{padding:"6px 12px",borderRadius:20,border:"1px solid",borderColor:selectedYear===y?"#4ade80":"#1e2330",background:selectedYear===y?"rgba(0,255,135,0.08)":"transparent",color:selectedYear===y?"#4ade80":"#555",fontSize:10,whiteSpace:"nowrap",cursor:"pointer"}}>{y}</button>
+            ))}
+          </div>
+          {(()=>{
+            const now = new Date();
+            const isCurrentYear = selectedYear === now.getFullYear();
+            const completedMonths = isCurrentYear ? now.getMonth() : 12;
+            const completedTotal = yearDivs.filter(d => isCurrentYear ? d.month <= completedMonths : true).reduce((s,d)=>s+d.amount,0);
+            const avg = completedMonths > 0 ? completedTotal / completedMonths : 0;
+            const estimation = avg * 12;
+            return (
+              <div style={{background:"linear-gradient(135deg,#0d1a0a,#0f1117)",border:"1px solid #4ade8033",borderRadius:16,padding:18,marginBottom:14}}>
+                <div style={{fontSize:9,color:"#6b7a99",letterSpacing:2,marginBottom:6}}>TOTAL {selectedYear}</div>
+                <div style={{fontSize:30,fontWeight:700,color:"#00ff87"}}>{fmt(totalYear)}</div>
+                <div style={{display:"flex",gap:16,marginTop:8,flexWrap:"wrap"}}>
+                  <div><div style={{fontSize:8,color:"#6b7a99",marginBottom:2}}>MOY/MOIS</div><div style={{fontSize:12}}>{fmt(avg)}</div></div>
+                  {isCurrentYear && completedMonths > 0 && (
+                    <div style={{borderLeft:"1px solid rgba(255,255,255,0.06)",paddingLeft:16}}>
+                      <div style={{fontSize:8,color:"#6b7a99",marginBottom:2}}>ESTIMATION {selectedYear}</div>
+                      <div style={{fontSize:16,fontWeight:700,color:"#ffd32a"}}>{fmt(estimation)}</div>
+                      <div style={{fontSize:8,color:"#6b7a99",marginTop:1}}>sur {completedMonths} mois complets</div>
+                    </div>
+                  )}
+                </div>
+              </div>
+            );
+          })()}
+          <div style={{background:"#0d1220",border:"1px solid rgba(255,255,255,0.07)",borderRadius:16,padding:16,marginBottom:14}}>
+            <div style={{fontSize:9,color:"#6b7a99",letterSpacing:2,marginBottom:12}}>MOIS PAR MOIS</div>
+            <MonthlyBars data={dividends} year={selectedYear} onMonthClick={(y)=>{setMonthlyYear(y);setView("mensuel");}} />
+          </div>
+          <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:10,marginBottom:14}}>
+            {CATEGORIES.map(cat => {
+              const total = byCatYear[cat]||0;
+              if (!total) return null;
+              return (
+                <div key={cat} style={{background:CAT_BG[cat],border:`1px solid ${CAT_COLORS[cat]}33`,borderRadius:14,padding:14}}>
+                  <div style={{fontSize:8,color:CAT_COLORS[cat],letterSpacing:1,marginBottom:6,textTransform:"uppercase"}}>{cat}</div>
+                  <div style={{fontSize:18,fontWeight:700}}>{fmt(total)}</div>
+                  <div style={{fontSize:9,color:"#6b7a99",marginTop:2}}>{((total/totalYear)*100).toFixed(0)}%</div>
+                </div>
+              );
+            })}
+          </div>
+          <div style={{background:"#0d1220",border:"1px solid rgba(255,255,255,0.07)",borderRadius:16,padding:16,marginBottom:14}}>
+            <div style={{fontSize:9,color:"#6b7a99",letterSpacing:2,marginBottom:12}}>PAR ACTIF {selectedYear}</div>
+            {byAssetYear.map(a => (
+              <div key={a.name} style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:10,paddingBottom:10,borderBottom:"1px solid rgba(255,255,255,0.07)"}}>
+                <div style={{display:"flex",alignItems:"center",gap:8,flex:1,overflow:"hidden"}}>
+                  <div style={{width:6,height:6,borderRadius:2,background:CAT_COLORS[a.category]||"#888",flexShrink:0}} />
+                  <div style={{fontSize:10,overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{a.name}</div>
+                </div>
+                <div style={{fontSize:12,color:"#ffd32a",fontWeight:600,flexShrink:0,marginLeft:8}}>{fmt(a.total)}</div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* MENSUEL PAR ACTIF */}
+      {view==="mensuel" && (
+        <div style={{padding:"16px 20px 0"}}>
+          {/* Year selector */}
+          <div style={{display:"flex",gap:6,overflowX:"auto",paddingBottom:10,marginBottom:10}}>
+            {YEARS.map(y => (
+              <button key={y} onClick={()=>setMonthlyYear(y)} style={{padding:"6px 12px",borderRadius:20,border:"1px solid",borderColor:monthlyYear===y?"#facc15":"#1e2330",background:monthlyYear===y?"rgba(255,211,42,0.08)":"transparent",color:monthlyYear===y?"#facc15":"#555",fontSize:10,whiteSpace:"nowrap",cursor:"pointer"}}>{y}</button>
+            ))}
+          </div>
+
+          {/* Monthly summary header */}
+          <div style={{background:"linear-gradient(135deg,#1a160a,#0f1117)",border:"1px solid #facc1533",borderRadius:16,padding:16,marginBottom:14}}>
+            <div style={{fontSize:9,color:"#6b7a99",letterSpacing:2,marginBottom:8}}>DÉTAIL MENSUEL {monthlyYear}</div>
+            <div style={{display:"flex",gap:4,overflowX:"auto",paddingBottom:4}}>
+              {(()=>{
+                const monthTotals = MONTHS_FR.map((_,i) => monthlyAssetBreakdown.reduce((s,a)=>s+a.months[i],0));
+                const maxTotal = Math.max(...monthTotals);
+                return MONTHS_FR.map((m,i) => {
+                  const total = monthTotals[i];
+                  const isBest = total > 0 && total === maxTotal;
+                  return (
+                  <div key={i} style={{flexShrink:0,textAlign:"center",minWidth:40}}>
+                    <div style={{fontSize:8,color:isBest?"#00ff87":"#6b7a99",marginBottom:4,fontWeight:isBest?700:400}}>{m}</div>
+                    <div style={{fontSize:10,fontWeight:isBest?700:600,color:isBest?"#00ff87":total>0?"#facc15":"#333"}}>{total>0?fmt(total):"-"}</div>
+                  </div>
+                  );
+                });
+              })()}
+            </div>
+          </div>
+
+          {/* Per asset monthly table */}
+          {monthlyAssetBreakdown.map(asset => {
+            const now = new Date();
+            const isCurrentYear = monthlyYear === now.getFullYear();
+            const currentMonthIdx = now.getMonth(); // 0-based
+            if (asset.isGroup) return (
+              <div key="__DAILY__" style={{background:"#0d1220",border:"1px solid rgba(255,211,42,0.2)",borderRadius:14,padding:14,marginBottom:10}}>
+                <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:10}}>
+                  <div style={{flex:1}}>
+                    <div style={{fontSize:9,color:"#ffd32a",letterSpacing:1,marginBottom:2}}>GROUPE</div>
+                    <div style={{fontSize:12,fontWeight:700,color:"#ffd32a"}}>Daily Dividends</div>
+                  </div>
+                  <div style={{fontSize:14,color:"#ffd32a",fontWeight:700}}>{fmt(asset.total)}</div>
+                </div>
+                <div style={{display:"flex",gap:4,overflowX:"auto"}}>
+                  {asset.months.map((v,i) => (
+                    <div key={i} style={{flexShrink:0,textAlign:"center",minWidth:40}}>
+                      <div style={{fontSize:7,color:isCurrentYear&&i===currentMonthIdx?"#facc15":"#6b7a99",marginBottom:3}}>{MONTHS_FR[i]}</div>
+                      <div style={{fontSize:9,color:v>0?"#ffd32a":"#333",background:v>0?"rgba(255,211,42,0.08)":"transparent",borderRadius:4,padding:"2px 4px",border:isCurrentYear&&i===currentMonthIdx?"1px solid rgba(255,211,42,0.3)":"none"}}>{v>0?fmt(v):"-"}</div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            );
+            return (
+            <div key={asset.name} style={{background:"#0d1220",border:`1px solid ${CAT_COLORS[asset.category]||"#1e2330"}33`,borderRadius:14,padding:14,marginBottom:10}}>
+              <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:10}}>
+                <div style={{flex:1,overflow:"hidden",paddingRight:8}}>
+                  {asset.groupe && (
+                    <div style={{fontSize:10,fontWeight:700,color:"#ffd32a",overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap",marginBottom:1}}>{asset.groupe}</div>
+                  )}
+                  <div style={{fontSize:asset.groupe?9:11,fontWeight:asset.groupe?400:600,color:asset.groupe?"#8899bb":"#e2e8f0",overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{asset.name}</div>
+                </div>
+                <div style={{fontSize:12,color:CAT_COLORS[asset.category]||"#888",fontWeight:700,flexShrink:0}}>{fmt(asset.total)}</div>
+              </div>
+              <div style={{display:"flex",gap:4,overflowX:"auto"}}>
+                {asset.months.map((v,i) => {
+                  const maxVal = Math.max(...asset.months);
+                  const isBest = v > 0 && v === maxVal;
+                  const isCurrentMonth = isCurrentYear && i === currentMonthIdx;
+                  return (
+                  <div key={i} style={{flexShrink:0,textAlign:"center",minWidth:40}}>
+                    <div style={{fontSize:7,color:isBest?"#00ff87":isCurrentMonth?"#facc15":"#6b7a99",marginBottom:3,fontWeight:isBest||isCurrentMonth?700:400}}>{MONTHS_FR[i]}</div>
+                    <div style={{fontSize:9,color:isBest?"#00ff87":v>0?"#e2e8f0":"#333",background:isBest?"rgba(0,255,135,0.15)":isCurrentMonth?"rgba(255,211,42,0.1)":v>0?`${CAT_COLORS[asset.category]}22`:"transparent",borderRadius:4,padding:"2px 4px",fontWeight:isBest?700:400,border:isCurrentMonth?"1px solid rgba(255,211,42,0.3)":"none"}}>{v>0?fmt(v):"-"}</div>
+                    {isCurrentMonth && (
+                      <div
+                        onClick={()=>{
+                          const existingDivs = dividends.filter(d => d.name === asset.name && d.year === monthlyYear && d.month === i+1);
+                          if (existingDivs.length === 1) {
+                            openEdit(existingDivs[0]);
+                          } else {
+                            setForm({name:asset.name, category:asset.category, groupe:asset.groupe||"", year:monthlyYear, month:i+1, day:now.getDate(), amount:"", note:""});
+                            setEditingDiv(null);
+                            setShowForm(true);
+                          }
+                        }}
+                        style={{fontSize:8,color:"#facc15",marginTop:3,cursor:"pointer",textAlign:"center"}}
+                      >✏️</div>
+                    )}
+                  </div>
+                  );
+                })}
+              </div>
+            </div>
+            );
+          })}
+          {monthlyAssetBreakdown.length === 0 && (
+            <div style={{textAlign:"center",color:"#6b7a99",fontSize:12,padding:40}}>Aucune donnée pour {monthlyYear}</div>
+          )}
+        </div>
+      )}
+
+      {/* PROCHAIN DIVIDENDE */}
+      {view==="prochain" && (
+        <div style={{padding:"16px 20px 0"}}>
+          <div style={{fontSize:9,color:"#888",letterSpacing:2,marginBottom:14}}>PROCHAINS DIVIDENDES ATTENDUS</div>
+          {getFrequencyData(dividends).map(a => {
+            const now = new Date();
+            const isCurrent = a.nextY === now.getFullYear() && a.nextM === now.getMonth()+1;
+            const isPast = a.nextY < now.getFullYear() || (a.nextY === now.getFullYear() && a.nextM < now.getMonth()+1);
+            return (
+              <div key={a.name} style={{background:"#0d1220",border:`1px solid ${isPast?"#f87171":isCurrent?"#4ade80":CAT_COLORS[a.category]||"#1e2330"}33`,borderLeft:`3px solid ${isPast?"#f87171":isCurrent?"#4ade80":CAT_COLORS[a.category]||"#888"}`,borderRadius:10,padding:14,marginBottom:8}}>
+                <div style={{display:"flex",justifyContent:"space-between",alignItems:"flex-start"}}>
+                  <div style={{flex:1,overflow:"hidden"}}>
+                    <div style={{fontSize:11,fontWeight:600,overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{a.name}</div>
+                    <div style={{display:"flex",gap:8,marginTop:4,alignItems:"center"}}>
+                      <div style={{fontSize:8,color:CAT_COLORS[a.category]||"#888"}}>{a.category}</div>
+                      <div style={{fontSize:8,color:"#888"}}>{a.freqLabel}</div>
+                    </div>
+                  </div>
+                  <div style={{textAlign:"right",flexShrink:0,marginLeft:8}}>
+                    <div style={{fontSize:13,fontWeight:700,color:isPast?"#f87171":isCurrent?"#4ade80":"#e2e8f0"}}>{MONTHS_FR[a.nextM-1]} {a.nextY}</div>
+                    {isCurrent && <div style={{fontSize:8,color:"#00ff87",marginTop:2}}>CE MOIS-CI</div>}
+                    {isPast && <div style={{fontSize:8,color:"#f87171",marginTop:2}}>EN RETARD</div>}
+                    <div style={{fontSize:10,color:"#ffd32a",marginTop:2}}>~{new Intl.NumberFormat("fr-FR",{style:"currency",currency:"EUR",maximumFractionDigits:0}).format(a.lastAmount)}</div>
+                  </div>
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      )}
+
+      {/* HISTORIQUE */}
+      {view==="historique" && (
+        <div style={{padding:"16px 20px 0"}}>
+          <div style={{display:"flex",gap:6,overflowX:"auto",paddingBottom:8,marginBottom:4}}>
+            {["Tous",...CATEGORIES].map(c => (
+              <button key={c} onClick={()=>setFilterCat(c)} style={{padding:"5px 10px",borderRadius:20,border:"1px solid",borderColor:filterCat===c?(CAT_COLORS[c]||"#4ade80"):"#1e2330",background:filterCat===c?(CAT_BG[c]||"rgba(0,255,135,0.08)"):"transparent",color:filterCat===c?(CAT_COLORS[c]||"#4ade80"):"#555",fontSize:8,whiteSpace:"nowrap",cursor:"pointer"}}>{c}</button>
+            ))}
+          </div>
+          {groupeNames.length > 1 && (
+            <div style={{display:"flex",gap:6,overflowX:"auto",paddingBottom:8,marginBottom:8}}>
+              {groupeNames.map(g => (
+                <button key={g} onClick={()=>setFilterGroupe(g)} style={{padding:"4px 10px",borderRadius:20,border:"1px solid",borderColor:filterGroupe===g?"#ffd32a":"#1e2330",background:filterGroupe===g?"rgba(255,211,42,0.1)":"transparent",color:filterGroupe===g?"#ffd32a":"#555",fontSize:8,whiteSpace:"nowrap",cursor:"pointer"}}>
+                  {g==="Tous"?"Tous groupes":"🏷 "+g}
+                </button>
+              ))}
+            </div>
+          )}
+          <div style={{fontSize:9,color:"#6b7a99",marginBottom:12}}>{filteredHist.length} versements</div>
+          {filteredHist.map(d => (
+            <div key={d.id} style={{background:"#0d1220",border:"1px solid rgba(255,255,255,0.07)",borderLeft:`3px solid ${CAT_COLORS[d.category]||"#888"}`,borderRadius:10,padding:12,marginBottom:8,display:"flex",justifyContent:"space-between",alignItems:"center"}}>
+              <div style={{flex:1,overflow:"hidden"}}>
+                {d.groupe && (
+                  <div style={{fontSize:12,fontWeight:700,color:"#ffd32a",overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap",marginBottom:2}}>{d.groupe}</div>
+                )}
+                <div style={{fontSize:d.groupe?10:11,fontWeight:d.groupe?400:600,color:d.groupe?"#8899bb":"#e2e8f0",overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{d.name}</div>
+                <div style={{display:"flex",gap:8,marginTop:3,alignItems:"center",flexWrap:"wrap"}}>
+                  <div style={{fontSize:8,color:"#6b7a99"}}>{d.day ? `${d.day} ` : ""}{MONTHS_FULL[d.month-1]} {d.year}</div>
+                  <div style={{fontSize:7,color:CAT_COLORS[d.category]||"#888",background:CAT_BG[d.category]||"rgba(255,255,255,0.05)",padding:"2px 7px",borderRadius:3}}>{d.category}</div>
+                  {d.note && <div style={{fontSize:7,color:"#6b7a99"}}>{d.note}</div>}
+                </div>
+              </div>
+              <div style={{display:"flex",alignItems:"center",gap:8,flexShrink:0}}>
+                <div style={{fontSize:14,fontWeight:700,color:"#ffd32a"}}>+{fmt(d.amount)}</div>
+                <button onClick={()=>openEdit(d)} style={{background:"rgba(255,255,255,0.05)",border:"none",borderRadius:6,padding:"3px 7px",color:"#c8d4f0",fontSize:10,cursor:"pointer"}}>✏️</button>
+                <button onClick={()=>deleteDiv(d.id)} style={{background:"rgba(248,113,113,0.1)",border:"none",borderRadius:6,padding:"3px 7px",color:"#f87171",fontSize:10,cursor:"pointer"}}>🗑</button>
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
+
+      {/* MODAL AJOUT */}
+      {showForm && (
+        <div style={{position:"fixed",inset:0,background:"rgba(0,0,0,0.85)",display:"flex",alignItems:"flex-end",zIndex:100}} onClick={()=>setShowForm(false)}>
+          <div style={{background:"#0d1220",borderRadius:"20px 20px 0 0",padding:24,width:"100%",maxWidth:480,margin:"0 auto",border:"1px solid #facc1533"}} onClick={e=>e.stopPropagation()}>
+            <div style={{fontSize:14,fontWeight:700,marginBottom:20,color:"#ffd32a"}}>{editingDiv ? "✏️ Modifier le dividende" : "💰 Ajouter un dividende"}</div>
+            <div style={{marginBottom:14}}>
+              <div style={{fontSize:9,color:"#6b7a99",letterSpacing:1,marginBottom:6}}>ACTIF</div>
+              <select value={form.name} onChange={e=>setForm({...form,name:e.target.value})} style={{width:"100%",background:"#080b12",border:"1px solid rgba(255,255,255,0.07)",borderRadius:8,padding:"10px 12px",color:"#f0f4ff",fontSize:12}}>
+                <option value="">-- Choisir --</option>
+                {assetNames.filter(n=>n!=="Tous").map(n=><option key={n} value={n}>{n}</option>)}
+                <option value="__custom__">+ Nouvel actif...</option>
+              </select>
+              {form.name==="__custom__" && (
+                <input placeholder="Nom de l'actif" value={customName} onChange={e=>setCustomName(e.target.value)} style={{marginTop:8,width:"100%",background:"#080b12",border:"1px solid #facc1533",borderRadius:8,padding:"10px 12px",color:"#f0f4ff",fontSize:12}} />
+              )}
+            </div>
+            <div style={{marginBottom:14}}>
+              <div style={{fontSize:9,color:"#6b7a99",letterSpacing:1,marginBottom:6}}>GROUPE</div>
+              {!newGroupeMode ? (
+                <div style={{display:"flex",gap:6}}>
+                  <select
+                    value={form.groupe}
+                    onChange={e => {
+                      if (e.target.value === "__nouveau__") { setNewGroupeMode(true); setForm({...form, groupe:""}); }
+                      else setForm({...form, groupe: e.target.value});
+                    }}
+                    style={{flex:1,background:"#080b12",border:"1px solid rgba(255,211,42,0.3)",borderRadius:8,padding:"10px 12px",color: form.groupe ? "#f0f4ff" : "#555",fontSize:12}}
+                  >
+                    <option value="">-- Aucun groupe --</option>
+                    {Array.from(new Set([...DEFAULT_GROUPS, ...dividends.map(d=>d.groupe).filter(Boolean)])).sort().map(g=>(
+                      <option key={g} value={g}>{g}</option>
+                    ))}
+                    <option value="__nouveau__">✏️ Nouveau groupe...</option>
+                  </select>
+                </div>
+              ) : (
+                <div style={{display:"flex",gap:6}}>
+                  <input
+                    autoFocus
+                    placeholder="Nom du nouveau groupe..."
+                    value={form.groupe}
+                    onChange={e=>setForm({...form,groupe:e.target.value})}
+                    style={{flex:1,background:"#080b12",border:"1px solid rgba(255,211,42,0.6)",borderRadius:8,padding:"10px 12px",color:"#f0f4ff",fontSize:12}}
+                  />
+                  <button onClick={()=>setNewGroupeMode(false)} style={{padding:"0 12px",background:"#1e2330",border:"1px solid #333",borderRadius:8,color:"#888",fontSize:11,cursor:"pointer"}}>↩</button>
+                </div>
+              )}
+            </div>
+            <div style={{marginBottom:14}}>
+              <div style={{fontSize:9,color:"#6b7a99",letterSpacing:1,marginBottom:6}}>CATÉGORIE</div>
+              <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:6}}>
+                {CATEGORIES.map(cat=>(
+                  <button key={cat} onClick={()=>setForm({...form,category:cat})} style={{padding:8,borderRadius:8,border:"1px solid",borderColor:form.category===cat?CAT_COLORS[cat]:"#1e2330",background:form.category===cat?CAT_BG[cat]:"transparent",color:form.category===cat?CAT_COLORS[cat]:"#555",fontSize:9,cursor:"pointer"}}>{cat}</button>
+                ))}
+              </div>
+            </div>
+            <div style={{marginBottom:14}}>
+              <div style={{fontSize:9,color:"#6b7a99",letterSpacing:1,marginBottom:6}}>MONTANT (€)</div>
+              <input type="number" step="0.01" placeholder="ex: 2.08" value={form.amount} onChange={e=>setForm({...form,amount:e.target.value})} style={{width:"100%",background:"#080b12",border:"1px solid rgba(255,255,255,0.07)",borderRadius:8,padding:"10px 12px",color:"#f0f4ff",fontSize:13}} />
+            </div>
+            <div style={{display:"grid",gridTemplateColumns:"1fr 1fr 1fr",gap:8,marginBottom:20}}>
+              <div>
+                <div style={{fontSize:9,color:"#6b7a99",letterSpacing:1,marginBottom:6}}>JOUR</div>
+                <select value={form.day} onChange={e=>setForm({...form,day:e.target.value})} style={{width:"100%",background:"#080b12",border:"1px solid rgba(255,255,255,0.07)",borderRadius:8,padding:"10px 12px",color:"#f0f4ff",fontSize:12}}>
+                  {Array.from({length:31},(_,i)=><option key={i+1} value={i+1}>{i+1}</option>)}
+                </select>
+              </div>
+              <div>
+                <div style={{fontSize:9,color:"#6b7a99",letterSpacing:1,marginBottom:6}}>MOIS</div>
+                <select value={form.month} onChange={e=>setForm({...form,month:e.target.value})} style={{width:"100%",background:"#080b12",border:"1px solid rgba(255,255,255,0.07)",borderRadius:8,padding:"10px 12px",color:"#f0f4ff",fontSize:12}}>
+                  {MONTHS_FULL.map((m,i)=><option key={i} value={i+1}>{m}</option>)}
+                </select>
+              </div>
+              <div>
+                <div style={{fontSize:9,color:"#6b7a99",letterSpacing:1,marginBottom:6}}>ANNÉE</div>
+                <select value={form.year} onChange={e=>setForm({...form,year:e.target.value})} style={{width:"100%",background:"#080b12",border:"1px solid rgba(255,255,255,0.07)",borderRadius:8,padding:"10px 12px",color:"#f0f4ff",fontSize:12}}>
+                  {YEARS.map(y=><option key={y} value={y}>{y}</option>)}
+                </select>
+              </div>
+            </div>
+            <div style={{display:"flex",gap:10}}>
+              <button onClick={()=>{setShowForm(false);setEditingDiv(null);setNewGroupeMode(false);}} style={{flex:1,padding:12,borderRadius:10,border:"1px solid rgba(255,255,255,0.07)",background:"transparent",color:"#6b7a99",fontSize:12,cursor:"pointer"}}>Annuler</button>
+              <button onClick={addDividend} style={{flex:2,padding:12,borderRadius:10,border:"none",background:"linear-gradient(135deg,#ffd32a,#ffaa00)",color:"#0a0c10",fontSize:12,fontWeight:700,cursor:"pointer"}}>{editingDiv ? "Modifier" : "Enregistrer"}</button>
+            </div>
+          </div>
+        </div>
+      )}
+
+
+      {dividends.filter(d=>d.category==="A classer").length > 0 && (
+        <div onClick={()=>{setFilterCat("A classer");setView("historique");}} style={{background:"rgba(248,113,113,0.1)",border:"1px solid rgba(248,113,113,0.3)",padding:"10px 20px",display:"flex",justifyContent:"space-between",alignItems:"center",cursor:"pointer",position:"sticky",top:0,zIndex:50}}>
+          <div style={{fontSize:11,color:"#f87171"}}>⚠️ {dividends.filter(d=>d.category==="A classer").length} dividende(s) T212 a classer</div>
+          <div style={{fontSize:10,color:"#f87171"}}>Voir →</div>
+        </div>
+      )}
+
+      {showT212Modal && (
+        <div style={{position:"fixed",inset:0,background:"rgba(0,0,0,0.85)",display:"flex",alignItems:"flex-end",zIndex:100}} onClick={()=>{if(!t212Preview){setShowT212Modal(false);setT212ImportStatus("");}}}>
+          <div style={{background:"#0d1220",borderRadius:"20px 20px 0 0",padding:24,width:"100%",maxWidth:480,margin:"0 auto",border:"1px solid rgba(96,165,250,0.3)",maxHeight:"90vh",overflowY:"auto"}} onClick={e=>e.stopPropagation()}>
+
+            {/* Ecran preview */}
+            {t212Preview ? (
+              <>
+                <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:4}}>
+                  <div style={{fontSize:14,fontWeight:700,color:"#60a5fa"}}>Confirmer l'import</div>
+                  <div style={{fontSize:10,color:"#6b7a99"}}>{Object.values(t212PreviewSelected).filter(Boolean).length}/{t212Preview.length} sélectionnés</div>
+                </div>
+                <div style={{fontSize:10,color:"#6b7a99",marginBottom:14}}>Décoche les lignes que tu ne veux pas importer</div>
+                <div style={{display:"flex",gap:8,marginBottom:12}}>
+                  <button onClick={()=>{const s={};t212Preview.forEach(i=>s[i.id]=true);setT212PreviewSelected(s);}} style={{flex:1,padding:"6px",borderRadius:8,border:"1px solid #333",background:"transparent",color:"#4ade80",fontSize:10,cursor:"pointer"}}>Tout sélectionner</button>
+                  <button onClick={()=>setT212PreviewSelected({})} style={{flex:1,padding:"6px",borderRadius:8,border:"1px solid #333",background:"transparent",color:"#f87171",fontSize:10,cursor:"pointer"}}>Tout décocher</button>
+                </div>
+                <div style={{marginBottom:16}}>
+                  {t212Preview.map(item => (
+                    <div key={item.id} onClick={()=>setT212PreviewSelected(prev=>({...prev,[item.id]:!prev[item.id]}))}
+                      style={{display:"flex",alignItems:"center",gap:10,padding:"10px 12px",borderRadius:10,marginBottom:6,cursor:"pointer",
+                        background:t212PreviewSelected[item.id]?"rgba(96,165,250,0.08)":"rgba(255,255,255,0.02)",
+                        border:`1px solid ${t212PreviewSelected[item.id]?"rgba(96,165,250,0.3)":"rgba(255,255,255,0.05)"}`}}>
+                      <div style={{width:18,height:18,borderRadius:4,border:`2px solid ${t212PreviewSelected[item.id]?"#60a5fa":"#333"}`,background:t212PreviewSelected[item.id]?"#60a5fa":"transparent",flexShrink:0,display:"flex",alignItems:"center",justifyContent:"center"}}>
+                        {t212PreviewSelected[item.id] && <span style={{color:"#fff",fontSize:11}}>✓</span>}
+                      </div>
+                      <div style={{flex:1,overflow:"hidden"}}>
+                        {item.groupe && <div style={{fontSize:10,color:"#ffd32a",fontWeight:700}}>{item.groupe}</div>}
+                        <div style={{fontSize:11,color:"#e2e8f0",overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{item.name}</div>
+                        <div style={{fontSize:9,color:"#6b7a99"}}>{item.day}/{item.month}/{item.year} · {item.category}</div>
+                      </div>
+                      <div style={{fontSize:12,fontWeight:700,color:"#4ade80",flexShrink:0}}>+{item.amount.toFixed(2)}€</div>
+                    </div>
+                  ))}
+                </div>
+                {t212ImportStatus && <div style={{background:"rgba(0,0,0,0.3)",border:"1px solid rgba(255,255,255,0.07)",borderRadius:8,padding:10,marginBottom:12,fontSize:11,color:"#c8d4f0"}}>{t212ImportStatus}</div>}
+                <div style={{display:"flex",gap:10}}>
+                  <button onClick={()=>{setT212Preview(null);setT212PreviewSelected({});}} style={{flex:1,padding:12,borderRadius:10,border:"1px solid rgba(255,255,255,0.07)",background:"transparent",color:"#6b7a99",fontSize:12,cursor:"pointer"}}>← Retour</button>
+                  <button onClick={confirmT212Import} disabled={t212Loading || Object.values(t212PreviewSelected).filter(Boolean).length===0} style={{flex:2,padding:12,borderRadius:10,border:"none",background:t212Loading?"#1e2330":"linear-gradient(135deg,#4ade80,#22c55e)",color:t212Loading?"#6b7a99":"#fff",fontSize:12,fontWeight:700,cursor:"pointer"}}>
+                    {t212Loading ? "Import..." : `Importer ${Object.values(t212PreviewSelected).filter(Boolean).length} ligne(s)`}
+                  </button>
+                </div>
+              </>
+            ) : (
+              <>
+                <div style={{fontSize:14,fontWeight:700,marginBottom:6,color:"#60a5fa"}}>Import Trading 212</div>
+                <div style={{fontSize:10,color:"#6b7a99",marginBottom:20}}>Tu pourras choisir les lignes à importer avant confirmation</div>
+                <div style={{marginBottom:12}}>
+                  <div style={{fontSize:9,color:"#6b7a99",letterSpacing:1,marginBottom:6}}>ID CLE API</div>
+                  <input type="text" placeholder="1556152Z..." value={t212ApiId} onChange={e=>setT212ApiId(e.target.value)} style={{width:"100%",background:"#080b12",border:"1px solid rgba(96,165,250,0.2)",borderRadius:8,padding:"10px 12px",color:"#f0f4ff",fontSize:12}} />
+                </div>
+                <div style={{marginBottom:20}}>
+                  <div style={{fontSize:9,color:"#6b7a99",letterSpacing:1,marginBottom:6}}>CLE SECRETE</div>
+                  <input type="password" placeholder="Colle ta cle secrete..." value={t212ApiSecret} onChange={e=>setT212ApiSecret(e.target.value)} style={{width:"100%",background:"#080b12",border:"1px solid rgba(96,165,250,0.2)",borderRadius:8,padding:"10px 12px",color:"#f0f4ff",fontSize:12}} />
+                </div>
+                {t212ImportStatus && <div style={{background:"rgba(0,0,0,0.3)",border:"1px solid rgba(255,255,255,0.07)",borderRadius:8,padding:12,marginBottom:16,fontSize:11,color:"#c8d4f0"}}>{t212ImportStatus}</div>}
+                <div style={{display:"flex",gap:10}}>
+                  <button onClick={()=>{setShowT212Modal(false);setT212ImportStatus("");}} style={{flex:1,padding:12,borderRadius:10,border:"1px solid rgba(255,255,255,0.07)",background:"transparent",color:"#6b7a99",fontSize:12,cursor:"pointer"}}>Fermer</button>
+                  <button onClick={importFromT212} disabled={t212Loading} style={{flex:2,padding:12,borderRadius:10,border:"none",background:t212Loading?"#1e2330":"linear-gradient(135deg,#60a5fa,#3b82f6)",color:t212Loading?"#6b7a99":"#fff",fontSize:12,fontWeight:700,cursor:t212Loading?"not-allowed":"pointer"}}>
+                    {t212Loading ? "Récupération..." : "Prévisualiser"}
+                  </button>
+                </div>
+              </>
+            )}
+          </div>
+        </div>
+      )}
+
+
+      {/* OUTILS */}
+      {view==="outils" && (
+        <div style={{padding:"20px 20px 100px"}}>
+          <div style={{fontSize:9,color:"#888",letterSpacing:2,marginBottom:20}}>OUTILS</div>
+          <div style={{background:"linear-gradient(135deg,#0f1117,#141824)",border:"1px solid rgba(255,255,255,0.07)",borderRadius:20,padding:20,marginBottom:14}}>
+            <div style={{fontSize:13,fontWeight:700,color:"#f472b6",marginBottom:4}}>Fusionner des noms d'actifs</div>
+            <div style={{fontSize:10,color:"#6b7a99",marginBottom:20}}>Renomme tous les enregistrements d'un ancien nom vers le nom T212 correct. Les montants et dates restent intacts.</div>
+            <div style={{marginBottom:12}}>
+              <div style={{fontSize:9,color:"#6b7a99",letterSpacing:1,marginBottom:6}}>NOM A REMPLACER (ancien)</div>
+              <select value={mergeFrom} onChange={e=>setMergeFrom(e.target.value)}
+                style={{width:"100%",background:"#080b12",border:"1px solid rgba(248,113,113,0.3)",borderRadius:8,padding:"10px 12px",color:mergeFrom?"#f0f4ff":"#6b7a99",fontSize:12}}>
+                <option value="">Choisir un nom...</option>
+                {Array.from(new Set(dividends.map(d=>d.name))).sort().map(n=>(
+                  <option key={n} value={n}>{n} ({dividends.filter(d=>d.name===n).length})</option>
+                ))}
+              </select>
+            </div>
+            <div style={{marginBottom:20}}>
+              <div style={{fontSize:9,color:"#6b7a99",letterSpacing:1,marginBottom:6}}>REMPLACER PAR (nom T212)</div>
+              <select value={mergeTo} onChange={e=>setMergeTo(e.target.value)}
+                style={{width:"100%",background:"#080b12",border:"1px solid rgba(96,165,250,0.3)",borderRadius:8,padding:"10px 12px",color:mergeTo?"#f0f4ff":"#6b7a99",fontSize:12}}>
+                <option value="">Choisir le nom cible...</option>
+                {Array.from(new Set(dividends.map(d=>d.name))).sort().map(n=>(
+                  <option key={n} value={n}>{n} ({dividends.filter(d=>d.name===n).length})</option>
+                ))}
+              </select>
+            </div>
+            {mergeFrom && mergeTo && mergeFrom !== mergeTo && (
+              <div style={{background:"rgba(248,113,113,0.06)",border:"1px solid rgba(248,113,113,0.2)",borderRadius:10,padding:12,marginBottom:16,fontSize:11,color:"#c8d4f0"}}>
+                <span style={{color:"#f87171",fontWeight:700}}>{dividends.filter(d=>d.name===mergeFrom).length} enregistrement(s)</span>{" "}
+                <span style={{color:"#fca5a5"}}>{mergeFrom}</span>
+                <span style={{color:"#6b7a99"}}> sera renommé en </span>
+                <span style={{color:"#4ade80",fontWeight:700}}>{mergeTo}</span>
+              </div>
+            )}
+            {mergeStatus && (
+              <div style={{background:"rgba(74,222,128,0.08)",border:"1px solid rgba(74,222,128,0.3)",borderRadius:8,padding:10,marginBottom:12,fontSize:11,color:"#4ade80"}}>
+                {mergeStatus}
+              </div>
+            )}
+            <button onClick={()=>mergeAssetNames(mergeFrom,mergeTo)}
+              disabled={!mergeFrom || !mergeTo || mergeFrom===mergeTo || mergeLoading}
+              style={{width:"100%",padding:13,borderRadius:10,border:"none",background:(!mergeFrom||!mergeTo||mergeFrom===mergeTo||mergeLoading)?"#1e2330":"linear-gradient(135deg,#f472b6,#ec4899)",color:(!mergeFrom||!mergeTo||mergeFrom===mergeTo||mergeLoading)?"#6b7a99":"#fff",fontSize:13,fontWeight:700,cursor:"pointer"}}>
+              {mergeLoading ? "Fusion en cours..." : "Fusionner"}
+            </button>
+          </div>
+        </div>
+      )}
+
+    </div>
+  );
+}
+
+ReactDOM.render(<App />, document.getElementById("root"));
+</script>
+</body>
+</html>
